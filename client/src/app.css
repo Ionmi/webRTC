@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "public-pixel";
+    src: url('./lib/assets/PublicPixel-z84yD.ttf');
+}
+
+.btn {
+    cursor: pointer;
+}

@@ -1,0 +1,58 @@
+pong:
+	-https://javascript.plainenglish.io/how-to-build-a-html-pong-game-8c29ef0ff462
+
+oauth 42:
+	-https://api.intra.42.fr/apidoc/guides/web_application_flow
+	-https://programacionymas.com/blog/protocolo-oauth-2
+postgres:
+	-httpshttps://www.arteco-consulting.com/post/instalar-postgresql-con-docker
+	-https://dev.to/andre347/how-to-easily-create-a-postgres-database-in-docker-4moj
+
+prisma:
+	-https://www.prisma.io/docs/concepts/components/prisma-client/crud
+
+
+nestjs + prisma:
+	-https://www.prisma.io/blog/nestjs-prisma-rest-api-7D056s1BmOL0
+
+docker development/production:
+	nestjs:
+		-https://www.tomray.dev/nestjs-docker-production
+		-https://www.tomray.dev/nestjs-docker-compose-postgres
+	sveltkit:
+		-https://jenyus.web.app/blog/2021-05-30-setting-up-a-development-environment-for-sveltekit-with-docker-and-compose
+		-https://medium.com/@alpercitak/dockerize-sveltekit-1323771a12b1
+		-https://myrmod.de/how-to-host-a-sveltekit-project-with-docker-https
+
+sveltekit tutorial:
+	- https://learn.svelte.dev/tutorial/introducing-sveltekit
+
+sveltekit auth:
+	-https://vercel.com/blog/announcing-sveltekit-auth
+	-https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+
+2FA:
+	-https://codevoweb.com/two-factor-authentication-2fa-in-nodejs/
+	-https://www.npmjs.com/package/speakeasy
+	
+session and cookies:
+	-https://dev.to/theether0/sveltekit-changes-session-and-cookies-enb
+	-https://www.okupter.com/blog/handling-auth-with-jwt-in-sveltekit
+	-https://jwt.io/introduction
+	-https://siddharthac6.medium.com/json-web-token-jwt-the-right-way-of-implementing-with-node-js-65b8915d550e
+	-https://techdocs.akamai.com/iot-token-access-control/docs/generate-ecdsa-keys
+	-https://stackoverflow.com/questions/61606684/nestjs-authentication-using-jwt-and-private-and-public-key
+
+node asynclocalstorage:
+	https://medium.com/@sascha.wolff/advanced-nestjs-how-to-have-access-to-the-current-user-in-every-service-without-request-scope-2586665741f   
+
+UI library:
+	-https://daisyui.com
+
+icons:
+	https://icons.getbootstrap.com/
+
+
+links que hay que añadir:
+<a target="_blank" href="https://icons8.com/icon/ZD1WUDodpC7H/pong">Pong</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<div> Icons made by <a href="https://www.freepik.com" title="Freepik"> Freepik </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>

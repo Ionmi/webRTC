@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  client:
+    container_name: front
+    build:
+      dockerfile: Dockerfile
+      context: client
+      target: development
+    ports:
+      - 8000:5173
+    env_file: .env
+    command: npm run dev
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: always
+
+  api:
+    container_name: server
+    build:
+      dockerfile: Dockerfile
+      context: api
+      target: development
+    ports:
+      - 3000:3000
+      - 4000:5555
+    env_file: .env
+    command: npm run start:dev
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: always
