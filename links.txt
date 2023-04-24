@@ -1,3 +1,5 @@
 pong:
 	-https://javascript.plainenglish.io/how-to-build-a-html-pong-game-8c29ef0ff462
 	-https://javascript.plainenglish.io/create-a-ping-pong-game-using-javascript-2688f83785d5
+	-https://svelte.dev/repl/79f4f3e0296a403ea988f74d332a7a4a?version=3.12.1
+	-https://codepen.io/gdube/pen/JybxxZ
