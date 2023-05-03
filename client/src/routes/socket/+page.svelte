@@ -13,25 +13,23 @@
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun2.l.google.com:19302" },
-      { urls: "stun:stun3.l.google.com:19302" },
-      { urls: "stun:stun4.l.google.com:19302" },
+      // { urls: "stun:stun3.l.google.com:19302" },
       { urls: "stun:stun.services.mozilla.com:3478" },
-      { urls: "stun:stun.skyway.io:3478" },
-      {
-        urls: "turn:relay.backups.cz",
-        credential: "webrtc",
-        username: "webrtc",
-      },
-      {
-        urls: "turn:relay.backups.cz?transport=tcp",
-        credential: "webrtc",
-        username: "webrtc",
-      },
-      {
-        urls: "turn:turn.anyfirewall.com:443?transport=tcp",
-        credential: "webrtc",
-        username: "webrtc",
-      },
+      // {
+      //   urls: "turn:relay.backups.cz",
+      //   credential: "webrtc",
+      //   username: "webrtc",
+      // },
+      // {
+      //   urls: "turn:relay.backups.cz?transport=tcp",
+      //   credential: "webrtc",
+      //   username: "webrtc",
+      // },
+      // {
+      //   urls: "turn:turn.anyfirewall.com:443?transport=tcp",
+      //   credential: "webrtc",
+      //   username: "webrtc",
+      // },
     ],
   };
 
@@ -88,7 +86,9 @@
     // Listen for answer from remote peer
     socket.on("answer", async (answer) => {
       try {
-        await peerConnection?.setRemoteDescription(answer);
+        await peerConnection?.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        );
       } catch (error) {
         console.error("Error handling answer:", error);
       }
@@ -148,6 +148,13 @@
       }
     };
 
+    connection.addEventListener("connectionstatechange", (event) => {
+      if (connection.connectionState === "connected") {
+        // Peers connected!
+        console.log("Peers connected!");
+      }
+    });
+
     // We implement our onTrack method for when we receive tracks
     // connection.ontrack = handleTrackEvent;
     // dataChannel = connection.createDataChannel("my-channel");
@@ -160,12 +167,13 @@
     return connection;
   };
 
-  const handleReceivedOffer = async () => {
+  const handleReceivedOffer = async (offer: any) => {
     try {
       peerConnection = createPeerConnection();
 
+      peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await peerConnection.createAnswer();
-      await peerConnection.setRemoteDescription(answer);
+      await peerConnection.setLocalDescription(answer);
       socket?.emit("answer", "room1", answer);
     } catch (error) {
       console.error("Error creating offer:", error);
@@ -175,9 +183,9 @@
   const initiateCall = async () => {
     try {
       peerConnection = createPeerConnection();
-      dataChannel = peerConnection.createDataChannel("data-channel");
+      // dataChannel = peerConnection.createDataChannel("data-channel");
       const offer = await peerConnection.createOffer();
-      await peerConnection.setRemoteDescription(offer);
+      await peerConnection.setLocalDescription(offer);
       socket?.emit("offer", "room1", offer);
     } catch (error) {
       console.error("Error creating offer:", error);
@@ -186,7 +194,6 @@
 
   const sendMessage = () => {
     dataChannel?.send("Hello, world!");
-    // socket?.emit("offer", { data: "Hello, server!" });
   };
   const disconnectFromSocket = () => {
     if (socket) {
