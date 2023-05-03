@@ -3,3 +3,16 @@ pong:
 	-https://javascript.plainenglish.io/create-a-ping-pong-game-using-javascript-2688f83785d5
 	-https://svelte.dev/repl/79f4f3e0296a403ea988f74d332a7a4a?version=3.12.1
 	-https://codepen.io/gdube/pen/JybxxZ
+
+webtrc:
+	-https://dev.to/bornfightcompany/using-webtrc-for-a-browser-multiplayer-game-in-theory-59dk
+	-https://levelup.gitconnected.com/building-a-video-chat-app-with-node-js-socket-io-webrtc-26f46b213017
+	-https://blog.logrocket.com/webrtc-signaling-websocket-node-js/
+	-https://www.npmjs.com/package/webrtc-adapter
+	-https://www.npmjs.com/package/@types/webrtc
+	-https://webrtc.github.io/samples/
+	-https://peerjs.com/
+	-https://www.stackfive.io/work/webrtc/the-beginners-guide-to-understanding-webrtc
+	-https://www.stackfive.io/work/webrtc/peer-to-peer-video-call-with-next-js-socket-io-and-native-webrtc-apis
+
+	-https://github.dev/ozanturhan/webrtc-nestjs-react-example

@@ -1,15 +1,11 @@
 <script lang="ts">
   import { renderable } from "./game";
-  export let color: string | null = null;
+  export let color: string;
 
   renderable((props: any) => {
     const { context, width, height } = props;
-    context.clearRect(0, 0, width, height);
-
-    if (color) {
-      context.fillStyle = color;
-      context.fillRect(0, 0, width, height);
-    }
+    context.fillStyle = color;
+    context.fillRect(0, 0, width, height);
   });
 </script>
 

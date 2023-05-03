@@ -1,29 +1,17 @@
 <script lang="ts">
-  import {
-    renderable,
-    canvasPosition,
-    paddleMeasures,
-    height,
-  } from "./game";
+  import { renderable, canvasPosition, paddleMeasures, height } from "./game";
   import { spring, type Spring } from "svelte/motion";
 
-  let color = "#ffe554";
+  let color = "#ffffff";
 
-  let coords: Spring<{ y: any }> = spring(
-    { y: null },
-    {
-      stiffness: 0.5,
-      damping: 1,
-    }
-  );
-
+  let y: number | null = null;
   renderable((props: any, dt: any) => {
-    const { context, width, height, paddleMeasures, ballDiameter } = props;
+    const { context, width, height, paddleMeasures, ballSize } = props;
 
-    if ($coords.y === null) $coords.y = height / 2 - paddleMeasures.height / 2;
-    else if ($coords.y < ballDiameter ) $coords.y = ballDiameter * 1.2;
-    else if ($coords.y > height - paddleMeasures.height - ballDiameter)
-      $coords.y = height - paddleMeasures.height - ballDiameter * 1.2;
+    if (y === null) y = height / 2 - paddleMeasures.height / 2;
+    else if (y < ballSize * 1.5) y = ballSize * 1.5;
+    else if (y > height - paddleMeasures.height - ballSize * 1.5)
+      y = height - paddleMeasures.height - ballSize * 1.5;
 
     context.lineCap = "butt";
 
@@ -31,7 +19,7 @@
     context.strokeStyle = color;
     context.fillRect(
       width - paddleMeasures.height,
-      $coords.y,
+      y,
       paddleMeasures.width,
       paddleMeasures.height
     );
@@ -45,8 +33,11 @@
       clientY - $canvasPosition.y > $height
     )
       return;
-    coords.set({ y: clientY - $canvasPosition.y - $paddleMeasures.height / 2 });
+    y = clientY - $canvasPosition.y - $paddleMeasures.height / 2;
   };
 </script>
 
-<svelte:window on:mousemove={handleMouseMove} />
+<svelte:window
+  on:mousemove={handleMouseMove}
+  on:dragstart={(ev) => console.log(ev)}
+/>

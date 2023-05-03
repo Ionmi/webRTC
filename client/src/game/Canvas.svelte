@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy, setContext } from "svelte";
-
   import {
     key,
     width,
@@ -10,8 +9,12 @@
     props,
     time,
     canvasPosition,
-    ballDiameter,
+    ballSize,
     paddleMeasures,
+    ballPos,
+    ballSpeed,
+    ballDir,
+    setInitialDir,
   } from "./game";
 
   let clazz: string = "";
@@ -37,7 +40,7 @@
       width: canvas.width / 100,
       height: canvas.height / 8,
     });
-    ballDiameter.set($paddleMeasures.height / 3);
+    ballSize.set($paddleMeasures.width * 2);
 
     canvasPosition.set({
       x: canvas.getBoundingClientRect().left,
@@ -56,13 +59,18 @@
         entity.ready = true;
       }
     );
-
     // start game loop
+    setInitialDir();
     return createLoop((elapsed: number, dt: any) => {
       time.set(elapsed);
       render(dt);
+      // if ($ballPos !== null) {
+      //   $ballPos[0] = $ballPos[0] + $ballDir[0] * $ballSpeed;
+      //   $ballPos[1] = $ballPos[1] + $ballDir[1] * $ballSpeed;
+      // }
     });
   });
+
 
   setContext(key, {
     add(fn: Function) {
@@ -109,7 +117,7 @@
       width: $canvasStore.width / 100,
       height: $canvasStore.height / 8,
     });
-    ballDiameter.set($paddleMeasures.height / 3);
+    ballSize.set($paddleMeasures.width * 2);
     canvasPosition.set({
       x: $canvasStore.getBoundingClientRect().left,
       y: $canvasStore.getBoundingClientRect().top,

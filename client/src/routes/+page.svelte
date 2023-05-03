@@ -8,16 +8,19 @@
   import LeftPaddle from "../game/LeftPaddle.svelte";
   import { height, width } from "../game/game";
   import RightPaddle from "../game/RightPaddle.svelte";
+  import Ball from "../game/Ball.svelte";
+
 </script>
 
 <div class="h-screen w-screen flex justify-center items-center">
-  <Canvas class="bg-white w-[80%] h-auto aspect-[1.6]">
+  <Canvas class="bg-white w-[80%] max-h-[80%] aspect-[1.4]">
     <Background color="hsl(0, 0%, 10%)">
       <!-- <DotGrid divisions={30} color="hsla(0, 0%, 100%, 0.5)" /> -->
     </Background>
     <!-- <Character size={10} /> -->
     <LeftPaddle />
     <RightPaddle />
+    <Ball />
     <!-- svelte-ignore missing-declaration -->
     <!-- <Text
       text="Click and drag around the page to move the character."
