@@ -10,31 +10,60 @@
 
   const ICE_SERVERS: RTCConfiguration = {
     iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun2.l.google.com:19302" },
-      // { urls: "stun:stun3.l.google.com:19302" },
-      { urls: "stun:stun.services.mozilla.com:3478" },
-      // {
-      //   urls: "turn:relay.backups.cz",
-      //   credential: "webrtc",
-      //   username: "webrtc",
-      // },
-      // {
-      //   urls: "turn:relay.backups.cz?transport=tcp",
-      //   credential: "webrtc",
-      //   username: "webrtc",
-      // },
-      // {
-      //   urls: "turn:turn.anyfirewall.com:443?transport=tcp",
-      //   credential: "webrtc",
-      //   username: "webrtc",
-      // },
+      {
+        urls: "stun:a.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:a.relay.metered.ca:80",
+        username: "d793e43965acbf2ec5082635",
+        credential: "OXDoOyCUewlYjkNs",
+      },
+      {
+        urls: "turn:a.relay.metered.ca:80?transport=tcp",
+        username: "d793e43965acbf2ec5082635",
+        credential: "OXDoOyCUewlYjkNs",
+      },
+      {
+        urls: "turn:a.relay.metered.ca:443",
+        username: "d793e43965acbf2ec5082635",
+        credential: "OXDoOyCUewlYjkNs",
+      },
+      {
+        urls: "turn:a.relay.metered.ca:443?transport=tcp",
+        username: "d793e43965acbf2ec5082635",
+        credential: "OXDoOyCUewlYjkNs",
+      },
     ],
+    // iceServers: [
+    //   { urls: "stun:stun.l.google.com:19302" },
+    //   { urls: "stun:stun2.l.google.com:19302" },
+    //   // { urls: "stun:stun3.l.google.com:19302" },
+    //   // { urls: "stun:stun.services.mozilla.com:3478" },
+    //   // // {
+    //   // //   urls: "turn:relay.backups.cz",
+    //   // //   credential: "webrtc",
+    //   // //   username: "webrtc",
+    //   // // },
+    //   // {
+    //   //   urls: "turn:relay.backups.cz?transport=tcp",
+    //   //   credential: "webrtc",
+    //   //   username: "webrtc",
+    //   // },
+    //   // {
+    //   //   urls: "turn:turn.anyfirewall.com:443?transport=tcp",
+    //   //   credential: "webrtc",
+    //   //   username: "webrtc",
+    //   // },
+    //   // {
+    //   //   urls: "turn:0.0.0.0:3478",
+    //   //   credential: "1234",
+    //   //   username: "ionmi",
+    //   // },
+    // ],
   };
 
   const connectToSocket = async () => {
-    socket = io("http://localhost:3000", { path: "/socket" });
+    socket = io("http://0.0.0.0:3000", { path: "/socket" });
 
     socket.on("connect", () => {
       console.log("Connected to socket");
@@ -67,6 +96,11 @@
       disconnectFromSocket();
     });
 
+    peerConnection?.addEventListener("datachannel", (event) => {
+      console.log("Data channel is created!");
+
+      dataChannel = event.channel;
+    });
     // Listen for open event on data channel
     dataChannel?.addEventListener("open", () => {
       console.log("Data channel is open and ready to use!");
@@ -78,6 +112,8 @@
     });
 
     peerConnection?.addEventListener("datachannel", (event) => {
+      console.log("datachannel event fired");
+
       dataChannel = event.channel;
     });
     // Listen for offer from remote peer and send answer back
@@ -89,6 +125,8 @@
         await peerConnection?.setRemoteDescription(
           new RTCSessionDescription(answer)
         );
+        // dataChannel = peerConnection?.createDataChannel("channel") ?? null;
+        console.log(dataChannel);
       } catch (error) {
         console.error("Error handling answer:", error);
       }
@@ -125,7 +163,9 @@
     // });
 
     // socket.on("answer", (answer) => {});
-    // socket.on("ice-candidate", (candidate) => {});
+    socket.on("ice-candidate", (candidate) => {
+      console.log("candidate");
+    });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket");
@@ -141,37 +181,61 @@
 
     // We implement our onicecandidate method for when we received a ICE candidate from the STUN server
     connection.onicecandidate = (event: any) => {
+      console.log("ice candidate");
       if (event.candidate) {
         console.log("Sending ice candidate");
-
+        // peerConnection?.addIceCandidate(event.candidate);
         socket?.emit("iceCandidate", "room1", event.candidate);
       }
     };
 
-    connection.addEventListener("connectionstatechange", (event) => {
-      if (connection.connectionState === "connected") {
-        // Peers connected!
-        console.log("Peers connected!");
-      }
-    });
+    connection.onicegatheringstatechange = () => {
+      console.log("onicegatheringstatechange");
+    };
+
+    connection.onicecandidate = ({ candidate }) => {
+      console.log("got a candidate", candidate);
+    };
+
+    connection.onicecandidateerror = (error) => {
+      console.log("onicecandidateerror");
+
+      console.error(error);
+    };
+
+    connection.onconnectionstatechange = (evt) => {
+      console.log("Connection state changed");
+      console.log(connection.connectionState);
+
+      console.log(evt);
+    };
+    connection.oniceconnectionstatechange = (evt) => {
+      console.log("oniceconnectionstatechange");
+
+      console.log(evt);
+    };
 
     // We implement our onTrack method for when we receive tracks
     // connection.ontrack = handleTrackEvent;
     // dataChannel = connection.createDataChannel("my-channel");
-    // connection.ondatachannel = (event: any) => {
-    //   console.log("Data channel is created!");
+    connection.ondatachannel = (event: any) => {
+      console.log("Data channel is created!");
 
-    //   dataChannel = event.channel;
-    //   // ??????
-    // };
+      dataChannel = event.channel;
+      // ??????
+    };
     return connection;
   };
 
   const handleReceivedOffer = async (offer: any) => {
     try {
       peerConnection = createPeerConnection();
-
-      peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      peerConnection.addEventListener("datachannel", (event) => {
+        console.log("Data channel event received!");
+        dataChannel = event.channel;
+      });
+      // peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      peerConnection.setRemoteDescription(offer);
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
       socket?.emit("answer", "room1", answer);
@@ -183,7 +247,7 @@
   const initiateCall = async () => {
     try {
       peerConnection = createPeerConnection();
-      // dataChannel = peerConnection.createDataChannel("data-channel");
+      dataChannel = peerConnection.createDataChannel("data-channel");
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       socket?.emit("offer", "room1", offer);
@@ -195,6 +259,7 @@
   const sendMessage = () => {
     dataChannel?.send("Hello, world!");
   };
+
   const disconnectFromSocket = () => {
     if (socket) {
       if (peerConnection) {
@@ -210,13 +275,13 @@
   };
 </script>
 
-<button class="btn btn-primary" on:click={connectToSocket}
-  >Connect to socket</button
->
+<button class="btn btn-primary" on:click={connectToSocket}>
+  Connect to socket
+</button>
 <span class="h-10 min-w-[4rem] p-8" />
-<button class="btn btn-primary" on:click={disconnectFromSocket}
-  >Disconnect from socket</button
->
+<button class="btn btn-primary" on:click={disconnectFromSocket}>
+  Disconnect from socket
+</button>
 <span class="h-10 min-w-[4rem] p-8" />
 <button class="btn btn-primary" on:click={initiateCall}>initiate call</button>
 <span class="h-10 min-w-[4rem] p-8" />

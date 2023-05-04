@@ -11,6 +11,7 @@ import { SocketService } from './socket.service';
 import { CreateSocketDto } from './dto/create-socket.dto';
 import { UpdateSocketDto } from './dto/update-socket.dto';
 import { Socket, Server } from 'socket.io';
+import { log } from 'console';
 
 @WebSocketGateway({ path: '/socket', cors: true })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -53,7 +54,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('ready')
   ready(@ConnectedSocket() client: Socket, @MessageBody() roomName: string) {
-    client.broadcast.to(roomName).emit('ready'); // Informs the other peer in the room.
+    // client.broadcast.to(roomName).emit('ready'); // Informs the other peer in the room.
+    this.server.to(roomName).emit('ready');
   }
 
   @SubscribeMessage('leave')
@@ -88,6 +90,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() payload: [roomName: string, iceCandidate: any],
   ) {
     console.log('Candidato ICE recibido');
+    // console.log(payload[1]);
     // Enviar candidato ICE a otro cliente
     client.broadcast.to(payload[0]).emit('iceCandidate', payload[1]);
   }

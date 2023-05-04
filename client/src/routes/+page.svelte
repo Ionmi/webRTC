@@ -9,7 +9,6 @@
   import { height, width } from "../game/game";
   import RightPaddle from "../game/RightPaddle.svelte";
   import Ball from "../game/Ball.svelte";
-
 </script>
 
 <div class="h-screen w-screen flex justify-center items-center">
