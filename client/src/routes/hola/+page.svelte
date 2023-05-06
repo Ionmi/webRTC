@@ -7,7 +7,6 @@
 
   let peerConnection: RTCPeerConnection;
   let dataChannel: RTCDataChannel;
-  let remoteDataChannel: RTCDataChannel;
   let socket: Socket;
   let host = false;
 
@@ -69,22 +68,33 @@
           (host === true ? "host" : "guest")
       );
 
-      dataChannel = peerConnection.createDataChannel(
-        host === true ? "DataChannelA" : "DataChannelB"
-      );
-      console.log(
-        "Created " + (host === true ? "DataChannelA" : "DataChannelB")
-      );
+      if (host === true) {
+        dataChannel = peerConnection.createDataChannel("DataChannelA");
+        dataChannel.onerror = (error) => {
+          console.log("Data Channel Error:", error);
+          return;
+        };
+        dataChannel.onmessage = (event) => {
+          console.log("Got Data Channel Message:", event.data);
+          messages = [...messages, { sender: false, message: event.data }];
+        };
+        console.log("dataChannel created");
+      }
 
-      peerConnection.onicecandidate = (ev) => {
-        if (ev.candidate !== null) {
-          const candidate = new RTCIceCandidate(ev.candidate);
-          socket.emit("iceCandidate", "room1", candidate);
+      peerConnection.onicecandidate = ({ candidate }) => {
+        if (candidate !== null) {
+          socket.emit("iceCandidate", "room1", new RTCIceCandidate(candidate));
         }
       };
 
-      peerConnection.ondatachannel = (ev: RTCDataChannelEvent) =>
-        receiveChannelCallback(ev);
+      peerConnection.ondatachannel = ({ channel }) => {
+        console.log("Receive Channel Callback");
+        dataChannel = channel;
+        dataChannel.onmessage = (ev: MessageEvent<any>) =>
+          (messages = [...messages, { sender: false, message: ev.data }]);
+        dataChannel.onopen = onReceiveChannelStateChange;
+        dataChannel.onclose = onReceiveChannelStateChange;
+      };
 
       socket.on("iceCandidate", async (candidate) => {
         try {
@@ -97,7 +107,9 @@
       socket.on("answer", async (answer) => {
         // Cannot set remote answer in state stable
         // await waitState();
-        peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        );
       });
 
       socket.on("offer", async (offer) => {
@@ -113,10 +125,14 @@
         }
       });
 
-      peerConnection.createOffer().then(async (offer) => {
-        await peerConnection.setLocalDescription(offer);
-        socket.emit("offer", "room1", offer);
-      });
+      try {
+        peerConnection.createOffer().then(async (offer) => {
+          await peerConnection.setLocalDescription(offer);
+          socket.emit("offer", "room1", offer);
+        });
+      } catch (error) {
+        console.log("Failed to create session description: " + error);
+      }
     });
     return () => {
       socket.emit("leave", "room1");
@@ -133,15 +149,6 @@
     if (message === "") return;
     messages = [...messages, { sender: true, message }];
     dataChannel.send(message);
-  };
-
-  const receiveChannelCallback = (event: RTCDataChannelEvent) => {
-    console.log("Receive Channel Callback");
-    remoteDataChannel = event.channel;
-    remoteDataChannel.onmessage = (ev: MessageEvent<any>) =>
-      (messages = [...messages, { sender: false, message: ev.data }]);
-    remoteDataChannel.onopen = onReceiveChannelStateChange;
-    remoteDataChannel.onclose = onReceiveChannelStateChange;
   };
 
   const onReceiveChannelStateChange = () => {
