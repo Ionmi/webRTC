@@ -1,17 +1,18 @@
 version: '3.3'
 
 services:
-  turn:
-    container_name: turn
-    image: zolochevska/turn-server
-    restart: always
-    ports:
-      - 3478:3478
-      - 3478:3478/udp
-    environment:
-    - USERNAME=ionmi
-    - PASSWORD=1234
-    - REALM=somerealm.com
+  # turn:
+  #   container_name: turn
+  #   image: zolochevska/turn-server
+  #   restart: always
+  #   ports:
+  #     - 3478:3478
+  #     - 3478:3478/udp
+  #   environment:
+  #   - USERNAME=ionmi
+  #   - PASSWORD=1234
+  #   - REALM=somerealm.com
+
   client:
     container_name: front
     build:

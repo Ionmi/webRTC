@@ -88,7 +88,7 @@
 
       socket.on("iceCandidate", async (candidate) => {
         try {
-          await peerConnection.addIceCandidate(candidate);
+          await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (error) {
           console.log("Failed to create session description: " + error);
         }
@@ -96,23 +96,25 @@
 
       socket.on("answer", async (answer) => {
         // Cannot set remote answer in state stable
-        await waitState();
-        peerConnection.setRemoteDescription(answer);
+        // await waitState();
+        peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
       });
 
       socket.on("offer", async (offer) => {
         try {
-          await peerConnection.setRemoteDescription(offer);
+          await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(offer)
+          );
           const answer = await peerConnection.createAnswer();
-          peerConnection.setLocalDescription(answer);
+          await peerConnection.setLocalDescription(answer);
           socket.emit("answer", "room1", answer);
         } catch (error) {
           console.log("Failed to create session description: " + error);
         }
       });
 
-      peerConnection.createOffer().then((offer) => {
-        peerConnection.setLocalDescription(offer);
+      peerConnection.createOffer().then(async (offer) => {
+        await peerConnection.setLocalDescription(offer);
         socket.emit("offer", "room1", offer);
       });
     });

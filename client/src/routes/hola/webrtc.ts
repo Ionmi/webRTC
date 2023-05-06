@@ -1,5 +1,3 @@
-import type { Socket } from "socket.io-client";
-
 export const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     {
