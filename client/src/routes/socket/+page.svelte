@@ -63,14 +63,16 @@
   };
 
   const connectToSocket = async () => {
-    socket = io("http://0.0.0.0:3000", { path: "/socket" });
+    socket = io("http://0.0.0.0:3000", { path: "/chat" });
 
     socket.on("connect", () => {
       console.log("Connected to socket");
     });
 
-    socket.emit("joinRoom", "room1");
+    socket.emit("join");
+    console.log("join");
 
+    return;
     socket.on("created", () => {
       console.log("Created room");
     });

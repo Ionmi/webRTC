@@ -18,3 +18,9 @@ webtrc:
 	-https://github.dev/ozanturhan/webrtc-nestjs-react-example
 
 	-https://webrtc.github.io/samples/
+
+	-https://blog.logrocket.com/creating-chat-application-with-webrtc/
+
+
+
+	-https://github.com/sveltejs/kit/discussions/8599

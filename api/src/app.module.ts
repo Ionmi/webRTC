@@ -3,10 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
-import { SocketModule } from './socket/socket.module';
+import { SocketModule } from './routes/socket/socket.module';
+import { ChatModule } from './routes/chat/chat.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), SocketModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), SocketModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })

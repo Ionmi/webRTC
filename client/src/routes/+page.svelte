@@ -9,6 +9,11 @@
   import { height, width } from "../game/game";
   import RightPaddle from "../game/RightPaddle.svelte";
   import Ball from "../game/Ball.svelte";
+  import { onDestroy } from "svelte";
+
+  onDestroy(() => {
+    console.log("destroyed");
+  });
 </script>
 
 <div class="h-screen w-screen flex justify-center items-center">

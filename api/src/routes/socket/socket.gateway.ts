@@ -29,13 +29,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    console.log('Cliente desconectado.');
+    // console.log('Cliente desconectado.');
     this.clients = this.clients.filter((c) => c !== client);
   }
 
   @SubscribeMessage('joinRoom')
   joinRoom(@ConnectedSocket() client: Socket, @MessageBody() roomName: string) {
-    console.log('Join room reqest');
+    // console.log('Join room reqest');
     const { rooms } = this.server.sockets.adapter;
     const room = rooms.get(roomName);
     if (room === undefined) {
@@ -49,7 +49,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // when there are already two people inside the room.
       client.emit('full');
     }
-    console.log(rooms);
+    // console.log(rooms);
   }
 
   @SubscribeMessage('ready')
@@ -60,6 +60,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('leave')
   leave(@ConnectedSocket() client: Socket, @MessageBody() roomName: string) {
+    log('Leave room request');
     client.leave(roomName);
     client.broadcast.to(roomName).emit('leave'); // Informs the other peer in the room.
   }
@@ -69,7 +70,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: [roomName: string, offer: any],
   ) {
-    console.log('Oferta recibida');
+    // console.log('Oferta recibida');
     // Enviar oferta a otro cliente
     client.broadcast.to(payload[0]).emit('offer', payload[1]);
   }
@@ -79,7 +80,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: [roomName: string, answer: any],
   ) {
-    console.log('Respuesta recibida');
+    // console.log('Respuesta recibida');
     client.broadcast.to(payload[0]).emit('answer', payload[1]);
     // Enviar respuesta a otro cliente
   }
@@ -89,7 +90,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: [roomName: string, iceCandidate: any],
   ) {
-    console.log('Candidato ICE recibido');
+    // console.log('Candidato ICE recibido');
     // console.log(payload[1]);
     // Enviar candidato ICE a otro cliente
     client.broadcast.to(payload[0]).emit('iceCandidate', payload[1]);
