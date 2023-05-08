@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { socket, messages, sendData, room, setSocket } from "./chatHelper";
+  import { room, setSocket, socket } from "./signailg";
+  import { sendData, messages } from "./webrtc";
+  // import { socket, messages, sendData, room, setSocket } from "./chatHelper";
 
   let inputValue = "";
   onMount(() => {

@@ -15,7 +15,7 @@ export const load = (async () => {
         )
       )
         check = true;
-    })(navigator.userAgent || navigator.vendor || window?.opera);
+    })(navigator.userAgent || navigator.vendor);
     return check;
   };
   if (!isMobile) {

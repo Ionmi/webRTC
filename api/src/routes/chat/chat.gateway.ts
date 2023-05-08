@@ -13,8 +13,6 @@ import { PeerDto } from './dto/peer.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket, Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import { log } from 'console';
-import { json } from 'stream/consumers';
 
 @WebSocketGateway({ path: '/chat', cors: true })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
