@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { socket, messages, sendData, room, setSocket } from "./chatHelper";
-  import { get } from "svelte/store";
 
   let inputValue = "";
   onMount(() => {
