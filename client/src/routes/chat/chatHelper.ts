@@ -2,8 +2,10 @@ import { create } from "qrcode";
 import type { Socket } from "socket.io-client";
 import { get, writable } from "svelte/store";
 
-export const peerConnection = writable<RTCPeerConnection>();
-export const dataChannel = writable<RTCDataChannel>();
+let peerConnection: RTCPeerConnection;
+let dataChannel: RTCDataChannel;
+// export const peerConnection = writable<RTCPeerConnection>();
+// export const dataChannel = writable<RTCDataChannel>();
 export const socket = writable<Socket>();
 export const room = writable<string>("joining room");
 export const peer = writable<string | null>(null);
@@ -17,11 +19,9 @@ export const messages = writable<{ sender: boolean; message: string }[]>([]);
 export let host = false;
 
 export const ICE_SERVERS: RTCConfiguration = {
-  // iceServers: [{ urls: "stun:stun.1.google.com:19302" }],
   iceServers: [
-    {
-      urls: "stun:a.relay.metered.ca:80",
-    },
+    { urls: "stun:stun.1.google.com:19302" },
+    { urls: "stun:a.relay.metered.ca:80" },
     {
       urls: "turn:a.relay.metered.ca:80",
       username: "d793e43965acbf2ec5082635",
@@ -55,13 +55,13 @@ export const handleSocketEvent = (event: string) => {
   }
   switch (res.type) {
     case "candidate":
-      get(peerConnection).addIceCandidate(new RTCIceCandidate(res.payload));
+      peerConnection.addIceCandidate(new RTCIceCandidate(res.payload));
       break;
     case "offer":
       onOffer(res.payload);
       break;
     case "answer":
-      get(peerConnection).setRemoteDescription(
+      peerConnection.setRemoteDescription(
         new RTCSessionDescription(res.payload)
       );
       break;
@@ -93,16 +93,16 @@ export const handleSocketEvent = (event: string) => {
 const handleLeave = () => {
   room.set("peer left the room");
   host = false;
-  get(dataChannel).close();
-  get(peerConnection).close();
+  dataChannel.close();
+  peerConnection.close();
   createPeerConnection();
   get(socket).emit("join");
   console.log("peer left the room");
 };
 
 const createPeerConnection = () => {
-  const connection = new RTCPeerConnection(ICE_SERVERS);
-  connection.onicecandidate = ({ candidate }) => {
+  peerConnection = new RTCPeerConnection(ICE_SERVERS);
+  peerConnection.onicecandidate = ({ candidate }) => {
     if (candidate) {
       sendPayload({
         type: "candidate",
@@ -110,37 +110,32 @@ const createPeerConnection = () => {
       });
     }
   };
-  connection.ondatachannel = ({ channel }) => {
+  peerConnection.ondatachannel = ({ channel }) => {
     console.log("Data channel is created!");
-    let receiveChannel = channel;
-    receiveChannel.onopen = () => {
+    dataChannel = channel;
+    dataChannel.onopen = () => {
       console.log("Data channel is open and ready to be used.");
     };
-    receiveChannel.onmessage = handleMessage;
-    dataChannel.set(receiveChannel);
+    dataChannel.onmessage = handleMessage;
   };
-  peerConnection.set(connection);
 };
 
 const createDataChannel = async () => {
-  const connection = get(peerConnection);
-  const channel = connection.createDataChannel("messenger");
+  dataChannel = peerConnection.createDataChannel("messenger");
   console.log("Data channel is created!");
 
-  channel.onerror = (error) => {
+  dataChannel.onerror = (error) => {
     console.log("Error occured on datachannel:", error);
   };
 
-  channel.onmessage = handleMessage;
-
-  dataChannel.set(channel);
+  dataChannel.onmessage = handleMessage;
 
   try {
-    const offer = await connection.createOffer();
-    await connection.setLocalDescription(offer);
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
     sendPayload({
       type: "offer",
-      payload: connection.localDescription,
+      payload: peerConnection.localDescription,
     });
   } catch (error) {
     console.log(error);
@@ -148,14 +143,13 @@ const createDataChannel = async () => {
 };
 
 const onOffer = async (offer: any) => {
-  const connection = get(peerConnection);
   try {
-    await connection.setRemoteDescription(new RTCSessionDescription(offer));
-    const answer = await connection.createAnswer();
-    await connection.setLocalDescription(answer);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
     sendPayload({
       type: "answer",
-      payload: connection.localDescription,
+      payload: peerConnection.localDescription,
     });
   } catch (error) {
     console.log(error);
@@ -186,5 +180,5 @@ const sendPayload = (data: { peer?: string; type: string; payload: any }) => {
 export const sendData = (message: string) => {
   if (message === "") return;
   addMessage(message, true);
-  get(dataChannel).send(JSON.stringify({ message }));
+  dataChannel.send(JSON.stringify({ message }));
 };

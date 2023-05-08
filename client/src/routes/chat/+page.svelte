@@ -1,10 +1,7 @@
 <script lang="ts">
   import io from "socket.io-client";
-  import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
   import {
-    peerConnection,
-    dataChannel,
     socket,
     messages,
     sendData,
