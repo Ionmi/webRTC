@@ -10,7 +10,6 @@
     sendData,
     handleSocketEvent,
     room,
-    host,
   } from "./chatHelper";
   import { get } from "svelte/store";
 
@@ -33,7 +32,7 @@
   <h1>room: {$room}</h1>
   <div class="w-[50vw] h-[60vh] p-20">
     {#each $messages as message}
-      <div class="chat {message.sender ? 'chat-start' : 'chat-end'}">
+      <div class="chat {message.sender ? 'chat-end' : 'chat-start'}">
         <div class="chat-bubble">
           {message.message}
         </div>
@@ -57,5 +56,4 @@
       class="btn btn-primary">SEND</button
     >
   </div>
-  <button class="btn btn-secondary mt-6" on:click={void 0}>Conectar</button>
 </div>

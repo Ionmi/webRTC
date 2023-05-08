@@ -12,7 +12,7 @@ export let defMessages: { sender: boolean; message: string }[] = [
   { sender: true, message: "My messages" },
   { sender: false, message: "Peer's messages" },
 ];
-export const messages = writable(defMessages);
+export const messages = writable<{ sender: boolean; message: string }[]>([]);
 
 export let host = false;
 
@@ -53,7 +53,6 @@ export const handleSocketEvent = (event: string) => {
     console.log("error parsing json");
     return;
   }
-  // console.log(res);
   switch (res.type) {
     case "candidate":
       get(peerConnection).addIceCandidate(new RTCIceCandidate(res.payload));
@@ -67,6 +66,8 @@ export const handleSocketEvent = (event: string) => {
       );
       break;
     case "ready":
+      console.log("host: ", host);
+
       peer.set(res.peer ?? "");
       room.set(res.room ?? "");
       host && createDataChannel();
@@ -80,16 +81,23 @@ export const handleSocketEvent = (event: string) => {
       console.log("waiting for peer");
       break;
     case "leave":
-      host = false;
-      room.set("peer left the room");
-      get(socket).emit("join");
-      console.log("peer left the room");
+      handleLeave();
       break;
 
     default:
       console.log("undefined response");
       break;
   }
+};
+
+const handleLeave = () => {
+  room.set("peer left the room");
+  host = false;
+  get(dataChannel).close();
+  get(peerConnection).close();
+  createPeerConnection();
+  get(socket).emit("join");
+  console.log("peer left the room");
 };
 
 const createPeerConnection = () => {
@@ -124,13 +132,11 @@ const createDataChannel = async () => {
   };
 
   channel.onmessage = handleMessage;
-  console.log("channel set");
 
   dataChannel.set(channel);
 
   try {
     const offer = await connection.createOffer();
-    console.log("Offer created!");
     await connection.setLocalDescription(offer);
     sendPayload({
       type: "offer",
@@ -158,21 +164,16 @@ const onOffer = async (offer: any) => {
 
 const handleMessage = ({ data }: { data: string }) => {
   try {
-    console.log(data);
-
     const message = JSON.parse(data);
-    addMessage(message.message);
+    addMessage(message.message, false);
   } catch (error) {
     console.log(error);
   }
 };
 
-const addMessage = (newMessage: string) => {
+const addMessage = (message: string, sender: boolean) => {
   // messages = [...messages, { sender: true, message: newMessage }];
-  messages.update((messages) => [
-    ...messages,
-    { sender: true, message: newMessage },
-  ]);
+  messages.update((messages) => [...messages, { sender, message }]);
 };
 
 const sendPayload = (data: { peer?: string; type: string; payload: any }) => {
@@ -184,6 +185,6 @@ const sendPayload = (data: { peer?: string; type: string; payload: any }) => {
 
 export const sendData = (message: string) => {
   if (message === "") return;
-  addMessage(message);
+  addMessage(message, true);
   get(dataChannel).send(JSON.stringify({ message }));
 };
