@@ -8,11 +8,13 @@ export const socket = writable<Socket>();
 export const room = writable<string>("joining room");
 export const peer = writable<string | null>(null);
 
-let defMessages: { sender: boolean; message: string }[] = [
+export let defMessages: { sender: boolean; message: string }[] = [
   { sender: true, message: "My messages" },
   { sender: false, message: "Peer's messages" },
 ];
 export const messages = writable(defMessages);
+
+export let host = false;
 
 export const ICE_SERVERS: RTCConfiguration = {
   // iceServers: [{ urls: "stun:stun.1.google.com:19302" }],
@@ -60,27 +62,25 @@ export const handleSocketEvent = (event: string) => {
       onOffer(res.payload);
       break;
     case "answer":
-      if (
-        get(peerConnection).signalingState.toString() === "have-remote-offer"
-      ) {
-        get(peerConnection).setRemoteDescription(
-          new RTCSessionDescription(res.payload)
-        );
-      }
+      get(peerConnection).setRemoteDescription(
+        new RTCSessionDescription(res.payload)
+      );
       break;
     case "ready":
       peer.set(res.peer ?? "");
       room.set(res.room ?? "");
-      createDataChannel();
+      host && createDataChannel();
       break;
     case "connected":
       createPeerConnection();
       break;
     case "created":
+      host = true;
       room.set(res.room ?? "");
       console.log("waiting for peer");
       break;
     case "leave":
+      host = false;
       room.set("peer left the room");
       get(socket).emit("join");
       console.log("peer left the room");
@@ -131,8 +131,6 @@ const createDataChannel = async () => {
   try {
     const offer = await connection.createOffer();
     console.log("Offer created!");
-    if (connection.signalingState.toString() === "have-remote-offer") return;
-
     await connection.setLocalDescription(offer);
     sendPayload({
       type: "offer",
@@ -147,14 +145,12 @@ const onOffer = async (offer: any) => {
   const connection = get(peerConnection);
   try {
     await connection.setRemoteDescription(new RTCSessionDescription(offer));
-    if (connection.signalingState.toString() === "have-remote-offer") {
-      const answer = await connection.createAnswer();
-      await connection.setLocalDescription(answer);
-      sendPayload({
-        type: "answer",
-        payload: connection.localDescription,
-      });
-    }
+    const answer = await connection.createAnswer();
+    await connection.setLocalDescription(answer);
+    sendPayload({
+      type: "answer",
+      payload: connection.localDescription,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -162,14 +158,17 @@ const onOffer = async (offer: any) => {
 
 const handleMessage = ({ data }: { data: string }) => {
   try {
+    console.log(data);
+
     const message = JSON.parse(data);
-    addMessage(message);
+    addMessage(message.message);
   } catch (error) {
     console.log(error);
   }
 };
 
 const addMessage = (newMessage: string) => {
+  // messages = [...messages, { sender: true, message: newMessage }];
   messages.update((messages) => [
     ...messages,
     { sender: true, message: newMessage },
@@ -186,5 +185,5 @@ const sendPayload = (data: { peer?: string; type: string; payload: any }) => {
 export const sendData = (message: string) => {
   if (message === "") return;
   addMessage(message);
-  get(dataChannel).send(message);
+  get(dataChannel).send(JSON.stringify({ message }));
 };

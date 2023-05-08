@@ -10,6 +10,7 @@
     sendData,
     handleSocketEvent,
     room,
+    host,
   } from "./chatHelper";
   import { get } from "svelte/store";
 
