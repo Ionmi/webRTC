@@ -1,11 +1,12 @@
-import { create } from "qrcode";
 import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import { get, writable } from "svelte/store";
+import { ICE_SERVERS } from "./iceServers";
 
 let peerConnection: RTCPeerConnection;
 let dataChannel: RTCDataChannel;
 export let socket: Socket;
+export let host = false;
 export const room = writable<string>("joining room");
 export const peer = writable<string | null>(null);
 
@@ -14,35 +15,6 @@ export let defMessages: { sender: boolean; message: string }[] = [
   { sender: false, message: "Peer's messages" },
 ];
 export const messages = writable<{ sender: boolean; message: string }[]>([]);
-
-export let host = false;
-
-export const ICE_SERVERS: RTCConfiguration = {
-  iceServers: [
-    { urls: "stun:stun.1.google.com:19302" },
-    { urls: "stun:a.relay.metered.ca:80" },
-    {
-      urls: "turn:a.relay.metered.ca:80",
-      username: "d793e43965acbf2ec5082635",
-      credential: "OXDoOyCUewlYjkNs",
-    },
-    {
-      urls: "turn:a.relay.metered.ca:80?transport=tcp",
-      username: "d793e43965acbf2ec5082635",
-      credential: "OXDoOyCUewlYjkNs",
-    },
-    {
-      urls: "turn:a.relay.metered.ca:443",
-      username: "d793e43965acbf2ec5082635",
-      credential: "OXDoOyCUewlYjkNs",
-    },
-    {
-      urls: "turn:a.relay.metered.ca:443?transport=tcp",
-      username: "d793e43965acbf2ec5082635",
-      credential: "OXDoOyCUewlYjkNs",
-    },
-  ],
-};
 
 export const setSocket = () => {
   socket = io("http://0.0.0.0:3000", { path: "/chat" });
