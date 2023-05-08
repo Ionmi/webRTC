@@ -80,8 +80,12 @@ const handleLeave = () => {
   console.log("peer left the room");
 };
 
+const GOOGLE_STUN_SERVER: RTCConfiguration = {
+  iceServers: [{ urls: "stun:stun.1.google.com:19302" }],
+};
+
 const createPeerConnection = () => {
-  peerConnection = new RTCPeerConnection(ICE_SERVERS);
+  peerConnection = new RTCPeerConnection(ICE_SERVERS ?? GOOGLE_STUN_SERVER);
   peerConnection.onicecandidate = ({ candidate }) => {
     if (candidate) {
       sendPayload({
