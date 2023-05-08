@@ -1,28 +1,22 @@
 <script lang="ts">
-  import io from "socket.io-client";
   import { onMount } from "svelte";
-  import {
-    socket,
-    messages,
-    sendData,
-    handleSocketEvent,
-    room,
-  } from "./chatHelper";
+  import { socket, messages, sendData, room, setSocket } from "./chatHelper";
   import { get } from "svelte/store";
 
   let inputValue = "";
   onMount(() => {
-    socket.set(io("http://0.0.0.0:3000", { path: "/chat" }));
-    get(socket).onAny((event: string) => {
-      handleSocketEvent(event);
-    });
-
-    get(socket).emit("join");
+    setSocket();
     return () => {
       console.log("Closing socket");
-      get(socket).close();
+      socket.close();
+      inputValue = "";
     };
   });
+
+  const submit = () => {
+    sendData(inputValue);
+    inputValue = "";
+  };
 </script>
 
 <div class="flex flex-col items-center justify-center w-screen">
@@ -46,11 +40,6 @@
       bind:value={inputValue}
     />
     <span class="w-2" />
-    <button
-      on:click={() => {
-        sendData(inputValue);
-      }}
-      class="btn btn-primary">SEND</button
-    >
+    <button on:click={submit} class="btn btn-primary">SEND</button>
   </div>
 </div>

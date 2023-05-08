@@ -1,12 +1,11 @@
 import { create } from "qrcode";
+import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import { get, writable } from "svelte/store";
 
 let peerConnection: RTCPeerConnection;
 let dataChannel: RTCDataChannel;
-// export const peerConnection = writable<RTCPeerConnection>();
-// export const dataChannel = writable<RTCDataChannel>();
-export const socket = writable<Socket>();
+export let socket: Socket;
 export const room = writable<string>("joining room");
 export const peer = writable<string | null>(null);
 
@@ -45,7 +44,15 @@ export const ICE_SERVERS: RTCConfiguration = {
   ],
 };
 
-export const handleSocketEvent = (event: string) => {
+export const setSocket = () => {
+  socket = io("http://0.0.0.0:3000", { path: "/chat" });
+  socket.onAny((event: string) => {
+    handleSocketEvent(event);
+  });
+  socket.emit("join");
+};
+
+const handleSocketEvent = (event: string) => {
   let res: { type: string; room?: string; payload?: any; peer?: string };
   try {
     res = JSON.parse(event);
@@ -95,8 +102,9 @@ const handleLeave = () => {
   host = false;
   dataChannel.close();
   peerConnection.close();
+  messages.set([]);
   createPeerConnection();
-  get(socket).emit("join");
+  socket.emit("join");
   console.log("peer left the room");
 };
 
@@ -174,7 +182,7 @@ const sendPayload = (data: { peer?: string; type: string; payload: any }) => {
   const peerId = get(peer);
   if (!peerId) return;
   data.peer = peerId;
-  get(socket).emit("message", JSON.stringify(data));
+  socket.emit("message", JSON.stringify(data));
 };
 
 export const sendData = (message: string) => {
