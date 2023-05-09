@@ -2,9 +2,9 @@
   import { onMount } from "svelte";
   import { room, setSocket, socket } from "./signailg";
   import { sendData, messages } from "./webrtc";
-  // import { socket, messages, sendData, room, setSocket } from "./chatHelper";
 
   let inputValue = "";
+  
   onMount(() => {
     setSocket();
     return () => {

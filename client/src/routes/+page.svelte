@@ -17,7 +17,7 @@
 </script>
 
 <div class="h-screen w-screen flex justify-center items-center">
-  <Canvas class="bg-white w-[80%] max-h-[80%] aspect-[1.4]">
+  <Canvas class="bg-white w-[80%] max-h-[80%] aspect-[7:5]">
     <Background color="hsl(0, 0%, 10%)">
       <!-- <DotGrid divisions={30} color="hsla(0, 0%, 100%, 0.5)" /> -->
     </Background>
