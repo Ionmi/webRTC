@@ -1,4 +1,4 @@
-import { get } from "svelte/store";
+import { get, writable } from "svelte/store";
 import {
   background,
   ball,
@@ -9,7 +9,12 @@ import {
   aspectRatio,
   awayPaddle,
   homePaddle,
+  range,
 } from "./gemeElements";
+
+// export let rotateCanvas: boolean = true;
+export const touchable = writable<boolean>(false);
+export const rotate = writable<boolean>(false);
 
 export const firstRender = async (srcs: IElementScrcs) => {
   setDimensions();
@@ -37,7 +42,7 @@ export const firstRender = async (srcs: IElementScrcs) => {
   awayPaddle.set({
     width: paddleWidth,
     height: paddleHeight,
-    x: width + paddleWidth - paddleHeight,
+    x: width - paddleWidth - paddleHeight,
     svg: awayPaddleSvg,
   });
 
@@ -48,14 +53,28 @@ export const firstRender = async (srcs: IElementScrcs) => {
 };
 
 const setDimensions = () => {
-  const maxWidth = window.innerWidth * 0.8;
-  const maxHeight = window.innerHeight * 0.8;
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  let maxWidth: number;
+  let maxHeight: number;
+
+  if (windowWidth < windowHeight) {
+    rotate.set(true);
+    maxWidth = window.innerWidth * 0.95;
+    maxHeight = window.innerHeight * 0.95;
+  } else {
+    rotate.set(false);
+    maxWidth = window.innerWidth * 0.8;
+    maxHeight = window.innerHeight * 0.8;
+  }
   const canv = get(canvas);
 
   const width = Math.min(maxWidth, maxHeight * aspectRatio.ratio);
 
   canv.width = width;
   canv.height = width / aspectRatio.ratio;
+
+  get(range).style.height = `${canv.height}px`;
 };
 
 export const handleResize = () => {
@@ -65,15 +84,12 @@ export const handleResize = () => {
 
 const renderBackground = () => {
   const { width, height } = get(canvas);
-
   get(context).drawImage(get(background), 0, 0, width, height);
 };
 
 const renderBall = (x: number, y: number) => {
   const { size, radius, svg } = get(ball);
   const sc = get(scala);
-  console.log(sc);
-
   get(context).drawImage(svg, x * sc - radius, y * sc - radius, size, size);
 };
 
@@ -89,7 +105,7 @@ const renderAwayPaddle = (y: number) => {
   get(context).drawImage(svg, x, y * sc - height / 2, width, height);
 };
 
-export const loadSvg = (src: string): Promise<HTMLImageElement> => {
+const loadSvg = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const svg = new Image();
     svg.src = src;

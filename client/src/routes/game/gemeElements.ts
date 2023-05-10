@@ -29,6 +29,7 @@ export interface IPadle {
 }
 
 export const canvas = writable<HTMLCanvasElement>();
+export const range = writable<HTMLDivElement>();
 export const context = writable<CanvasRenderingContext2D>();
 export const scala = writable<number>();
 export const background = writable<HTMLImageElement>();
