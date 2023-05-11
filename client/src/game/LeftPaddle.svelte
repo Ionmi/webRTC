@@ -10,7 +10,7 @@
     const { context, height, paddleMeasures, ballSize } = props;
 
     if (y === null) y = height / 2 - paddleMeasures.height / 2;
-    else if (y < ballSize * 1.5) y = ballSize * 1.5;
+    else if (y < ballSize * 1.5)  y = ballSize * 1.5;
     else if (y > height - paddleMeasures.height - ballSize * 1.5)
       y = height - paddleMeasures.height - ballSize * 1.5;
 
