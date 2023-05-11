@@ -13,21 +13,25 @@ import {
   controllerCtx,
   setSvgs,
   setDimensions,
+  cornerGap,
 } from "./gemeElements";
 
 // export let rotateCanvas: boolean = true;
 export const touchable = writable<boolean>(false);
-export const rotate = writable<boolean>(false);
+export const landscape = writable<boolean>(true);
 
 export const handleResize = () => {
   setDimensions();
-  renderBackground();
+  defaultRender();
 };
 
 export const firstRender = async (srcs: IElementScrcs) => {
   await setSvgs(srcs);
   setDimensions();
+  defaultRender();
+};
 
+const defaultRender = () => {
   renderBackground();
   renderController(get(controller).height / 2);
   renderBall(aspectRatio.width / 2, aspectRatio.height / 2);
@@ -35,11 +39,27 @@ export const firstRender = async (srcs: IElementScrcs) => {
   renderAwayPaddle(aspectRatio.height / 2);
 };
 
-const renderController = (height: number) => {
-  const canvas = get(controller);
+export const renderController = (pos: number) => {
+  const { width, height } = get(controller);
   const context = get(controllerCtx);
+  context.clearRect(0, 0, width, height);
+
+  const gap = get(cornerGap);
+  const radius = width / 4;
+
   context.beginPath();
-  context.arc(canvas.width / 2, height, canvas.width / 2, 0, 2 * Math.PI);
+  context.moveTo(radius, gap);
+  context.lineTo(width - radius, gap);
+  context.lineTo(width - radius, height - gap);
+  context.lineTo(radius, height - gap);
+  context.closePath();
+  context.arc(width / 2, gap, radius, 0, 2 * Math.PI);
+  context.arc(width / 2, height - gap, radius, 0, 2 * Math.PI);
+  context.fillStyle = "#002A3C";
+  context.fill();
+
+  context.beginPath();
+  context.arc(width / 2, pos, width / 2, 0, 2 * Math.PI);
   context.fillStyle = "#37BDF8";
   context.fill();
 };

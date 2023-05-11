@@ -1,18 +1,24 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { firstRender, handleResize, rotate, touchable } from "./render";
+  import {
+    firstRender,
+    handleResize,
+    landscape,
+    renderController,
+    touchable,
+  } from "./render";
   import {
     table as tableStore,
     controller as controllerStore,
     tableCtx,
     type IElementScrcs,
     controllerCtx,
+    cornerGap,
   } from "./gemeElements";
   import { get } from "svelte/store";
 
   let canvas: HTMLCanvasElement;
   let controller: HTMLCanvasElement;
-  let rangeTrack: HTMLDivElement;
 
   const srcs: IElementScrcs = {
     background: "/red_background.svg",
@@ -31,33 +37,53 @@
     firstRender(srcs);
   });
 
-  function handleTouchMove(event: TouchEvent) {
-    const clientX = event.touches[0].clientX;
-    const clientY = event.touches[0].clientY;
-    const min = rangeTrack.getBoundingClientRect().left;
-    const max = rangeTrack.getBoundingClientRect().right;
+  const handleTouchMove = (event: TouchEvent) => {
+    const { width, height } = window.screen;
+    const { left, right, top, bottom } =
+      get(controllerStore).getBoundingClientRect();
+    const { clientX, clientY } = event.touches[0];
+    const gap = get(cornerGap);
 
-    console.log("min = " + min);
-    console.log("min = " + min);
+    // console.log(clientX);
 
-    if (clientX < min || clientX > max) {
-      return;
+    if (get(landscape)) {
+      if (clientY < top + gap || clientY > bottom - gap) {
+        return;
+      }
+      renderController(clientY - top);
+    } else {
+      if (clientX < left + gap || clientX > right - gap) {
+        return;
+      }
+      const x = clientX * -1 + width;
+      renderController(x - left);
     }
+    // console.log(right);
 
-    console.log("movementX = " + event.touches[0].clientX);
-    console.log(min);
+    // console.log(width, height);
 
-  }
+    // const min = rangeTrack.getBoundingClientRect().left;
+    // const max = rangeTrack.getBoundingClientRect().right;
+
+    // console.log("min = " + min);
+    // console.log("min = " + min);
+
+    // if (clientX < min || clientX > max) {
+    //   return;
+    // }
+
+    // console.log("movementX = " + event.touches[0].clientX);
+    // console.log(min);
+  };
 </script>
 
-<div class:rotate={$rotate} class="flex items-center gap-8">
+<div class:rotate={!$landscape} class="flex items-center gap-8">
   <canvas bind:this={canvas} />
-  <canvas bind:this={controller} class=" bg-transparent" />
-  <!-- <div
-    bind:this={rangeTrack}
+  <canvas
+    bind:this={controller}
     on:touchmove|preventDefault={handleTouchMove}
-    class="bg-primary-content rounded-full w-3 glowing-div"
-  /> -->
+    class=" bg-transparent"
+  />
 </div>
 <svelte:window on:resize|passive={handleResize} />
 

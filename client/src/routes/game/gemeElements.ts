@@ -1,5 +1,5 @@
 import { get, writable } from "svelte/store";
-import { rotate } from "./render";
+import { landscape } from "./render";
 
 export const aspectRatio = { width: 7, height: 5, ratio: 1.4 };
 
@@ -28,6 +28,7 @@ export const tableCtx = writable<CanvasRenderingContext2D>();
 export const controller = writable<HTMLCanvasElement>();
 export const controllerCtx = writable<CanvasRenderingContext2D>();
 export const scala = writable<number>();
+export const cornerGap = writable<number>();
 export const background = writable<HTMLImageElement>();
 export const ball = writable<IBall>();
 export const homePaddle = writable<IPadle>();
@@ -37,32 +38,15 @@ export const setDimensions = () => {
   setTable(get(table));
   setBall(get(table).width);
   setPaddles(get(table).width, get(table).height);
-  setController(get(controller), get(controllerCtx));
+  setController(get(controller));
 };
 
-const setController = (
-  controller: HTMLCanvasElement,
-  context: CanvasRenderingContext2D
-) => {
+const setController = (controller: HTMLCanvasElement) => {
   const { height } = get(table);
   const width = get(homePaddle).height * 0.75;
 
   controller.height = height;
   controller.width = width;
-
-  const gap = height / 16 + get(ball).radius + 3;
-  const radius = width / 4;
-
-  context.beginPath();
-  context.moveTo(radius, gap);
-  context.lineTo(width - radius, gap);
-  context.lineTo(width - radius, height - gap);
-  context.lineTo(radius, height - gap);
-  context.closePath();
-  context.arc(width / 2, gap, radius, 0, 2 * Math.PI);
-  context.arc(width / 2, height - gap, radius, 0, 2 * Math.PI);
-  context.fillStyle = "#002A3C";
-  context.fill();
 };
 
 const setTable = (table: HTMLCanvasElement) => {
@@ -72,20 +56,23 @@ const setTable = (table: HTMLCanvasElement) => {
   let maxHeight: number;
 
   if (windowWidth < windowHeight) {
-    rotate.set(true);
+    landscape.set(false);
     maxWidth = window.innerWidth * 0.95;
     maxHeight = window.innerHeight * 0.95;
   } else {
-    rotate.set(false);
+    landscape.set(true);
     maxWidth = window.innerWidth * 0.8;
     maxHeight = window.innerHeight * 0.8;
   }
 
   const width = Math.min(maxWidth, maxHeight * aspectRatio.ratio);
+  const height = width / aspectRatio.ratio;
 
   table.width = width;
-  table.height = width / aspectRatio.ratio;
+  table.height = height;
+
   scala.set(width / aspectRatio.width);
+  cornerGap.set(height / 16 + (width / 100) * 3);
 };
 
 const setBall = (width: number) => {
