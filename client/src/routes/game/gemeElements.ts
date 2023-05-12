@@ -90,7 +90,7 @@ const setPaddles = (width: number, height: number) => {
       ...paddle,
       width: paddleWidth,
       height: paddleHeight,
-      x: paddleHeight,
+      x: width - paddleWidth - paddleHeight,
     };
   });
 
@@ -99,7 +99,7 @@ const setPaddles = (width: number, height: number) => {
       ...paddle,
       width: paddleWidth,
       height: paddleHeight,
-      x: width - paddleWidth - paddleHeight,
+      x: paddleHeight,
     };
   });
 };

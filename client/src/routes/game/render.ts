@@ -15,31 +15,40 @@ import {
   setDimensions,
   cornerGap,
 } from "./gemeElements";
+import type { IPositions } from "./connector";
 
-// export let rotateCanvas: boolean = true;
+const defPositions = {
+  ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
+  homePaddle: aspectRatio.height / 2,
+  awayPaddle: aspectRatio.height / 2,
+} as IPositions;
+
 export const touchable = writable<boolean>(false);
 export const landscape = writable<boolean>(true);
 
 export const handleResize = () => {
   setDimensions();
-  defaultRender();
+  render(defPositions);
 };
 
 export const firstRender = async (srcs: IElementScrcs) => {
   await setSvgs(srcs);
   setDimensions();
-  defaultRender();
+  render(defPositions);
 };
 
-const defaultRender = () => {
+export const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
   renderBackground();
-  renderController(get(controller).height / 2);
-  renderBall(aspectRatio.width / 2, aspectRatio.height / 2);
-  renderHomePaddle(aspectRatio.height / 2);
-  renderAwayPaddle(aspectRatio.height / 2);
+  renderBall(ball.x, ball.y);
+  renderHomePaddle(homePaddle);
+  renderAwayPaddle(awayPaddle);
 };
 
 export const renderController = (pos: number) => {
+  if (!get(touchable)) {
+    get(controller).style.display = "none";
+    return;
+  }
   const { width, height } = get(controller);
   const context = get(controllerCtx);
   context.clearRect(0, 0, width, height);
