@@ -6,7 +6,6 @@ import {
   tableCtx,
   scala,
   type IElementScrcs,
-  aspectRatio,
   awayPaddle,
   homePaddle,
   controller,
@@ -14,37 +13,44 @@ import {
   setSvgs,
   setDimensions,
   cornerGap,
+  type IPositions,
+  positions,
 } from "./gemeElements";
-import type { IPositions } from "./connector";
-
-const defPositions = {
-  ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
-  homePaddle: aspectRatio.height / 2,
-  awayPaddle: aspectRatio.height / 2,
-} as IPositions;
 
 export const touchable = writable<boolean>(false);
 export const landscape = writable<boolean>(true);
 
-export const handleResize = () => {
+let frame: number;
+
+export const renderResize = () => {
   setDimensions();
-  render(defPositions);
+  renderController();
 };
 
 export const firstRender = async (srcs: IElementScrcs) => {
   await setSvgs(srcs);
   setDimensions();
-  render(defPositions);
+  renderController();
 };
 
-export const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
+export const renderLoop = () => {
+  (function loop() {
+    frame = requestAnimationFrame(loop);
+    render(get(positions));
+  })();
+  return () => {
+    cancelAnimationFrame(frame);
+  };
+};
+
+const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
   renderBackground();
   renderBall(ball.x, ball.y);
   renderHomePaddle(homePaddle);
   renderAwayPaddle(awayPaddle);
 };
 
-export const renderController = (pos: number) => {
+export const renderController = (pos: number = get(controller).height / 2) => {
   if (!get(touchable)) {
     get(controller).style.display = "none";
     return;

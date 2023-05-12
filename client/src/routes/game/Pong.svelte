@@ -2,10 +2,11 @@
   import { onMount } from "svelte";
   import {
     firstRender,
-    handleResize,
+    renderResize,
     landscape,
     renderController,
     touchable,
+    renderLoop,
   } from "./render";
   import {
     table as tableStore,
@@ -29,14 +30,14 @@
     awayPaddle: "/default_paddle.svg",
   };
 
-  onMount(() => {
+  onMount(async () => {
     tableStore.set(canvas);
     controllerStore.set(controller);
     tableCtx.set(canvas.getContext("2d") as CanvasRenderingContext2D);
     controllerCtx.set(controller.getContext("2d") as CanvasRenderingContext2D);
-
-    // touchable.set(true);
-    firstRender(srcs);
+    touchable.set(true);
+    await firstRender(srcs);
+    renderLoop();
   });
 
   const handleTouchMove = (event: TouchEvent) => {
@@ -45,17 +46,17 @@
     const { clientX, clientY } = event.touches[0];
     const { width } = window.screen;
     const gap = get(cornerGap);
+    let position: number;
 
     if (get(landscape)) {
       if (clientY < top + gap || clientY > bottom - gap) return;
-      renderController(clientY - top);
-      handlePaddleMove(clientY - top);
-      return;
+      position = clientY - top;
+    } else {
+      if (clientX < left + gap || clientX > right - gap) return;
+      position = clientX * -1 + width - left;
     }
-    if (clientX < left + gap || clientX > right - gap) return;
-    const x = clientX * -1 + width;
-    renderController(x - left);
-    handlePaddleMove(x - left);
+    renderController(position);
+    handlePaddleMove(position);
   };
 
   const handleMouseMove = (event: MouseEvent) => {
@@ -69,27 +70,32 @@
     const { clientX, clientY } = event;
     const width = w + left * 2;
     const gap = get(cornerGap);
+    let position: number;
 
     if (get(landscape)) {
       if (clientY < top + gap || clientY > bottom - gap) return;
-      handlePaddleMove(clientY - top);
-      return;
+      position = clientY - top;
+    } else {
+      if (clientX < left + gap || clientX > right - gap) return;
+      position = clientX * -1 + width - left;
     }
-    if (clientX < left + gap || clientX > right - gap) return;
-    const x = clientX * -1 + width;
-    handlePaddleMove(x - left);
+    handlePaddleMove(position);
   };
 </script>
 
 <div class:rotate={!$landscape} class="flex items-center gap-8">
-  <canvas bind:this={canvas} on:mousemove={handleMouseMove} />
+  <canvas
+    bind:this={canvas}
+    on:mousemove={handleMouseMove}
+    class="cursor-none"
+  />
   <canvas
     bind:this={controller}
     on:touchmove|preventDefault={handleTouchMove}
     class=" bg-transparent"
   />
 </div>
-<svelte:window on:resize|passive={handleResize} />
+<svelte:window on:resize|passive={renderResize} />
 
 <style>
   .rotate {

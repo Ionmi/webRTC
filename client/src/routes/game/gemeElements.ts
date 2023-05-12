@@ -23,6 +23,19 @@ export interface IPadle {
   svg: HTMLImageElement;
 }
 
+export interface IPositions {
+  ball: { x: number; y: number };
+  homePaddle: number;
+  awayPaddle: number;
+}
+
+const defPositions = {
+  ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
+  homePaddle: aspectRatio.height / 2,
+  awayPaddle: aspectRatio.height / 2,
+} as IPositions;
+export const positions = writable<IPositions>(defPositions);
+
 export const table = writable<HTMLCanvasElement>();
 export const tableCtx = writable<CanvasRenderingContext2D>();
 export const controller = writable<HTMLCanvasElement>();
