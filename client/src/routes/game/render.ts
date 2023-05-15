@@ -24,13 +24,16 @@ let frame: number;
 
 export const renderResize = () => {
   setDimensions();
-  renderController();
+  if (!get(touchable)) get(controller).style.display = "none";
+  else renderController();
 };
 
 export const firstRender = async (srcs: IElementScrcs) => {
   await setSvgs(srcs);
+  get(tableCtx).imageSmoothingQuality = "low";
   setDimensions();
-  renderController();
+  if (!get(touchable)) get(controller).style.display = "none";
+  else renderController();
 };
 
 export const renderLoop = () => {
@@ -43,7 +46,7 @@ export const renderLoop = () => {
   };
 };
 
-const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
+export const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
   renderBackground();
   renderBall(ball.x, ball.y);
   renderHomePaddle(homePaddle);
@@ -51,10 +54,6 @@ const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
 };
 
 export const renderController = (pos: number = get(controller).height / 2) => {
-  if (!get(touchable)) {
-    get(controller).style.display = "none";
-    return;
-  }
   const { width, height } = get(controller);
   const context = get(controllerCtx);
   context.clearRect(0, 0, width, height);
@@ -81,23 +80,47 @@ export const renderController = (pos: number = get(controller).height / 2) => {
 
 const renderBackground = () => {
   const { width, height } = get(table);
-  get(tableCtx).drawImage(get(background), 0, 0, width, height);
+  get(tableCtx).drawImage(
+    get(background),
+    0,
+    0,
+    Math.floor(width),
+    Math.floor(height)
+  );
 };
 
 const renderBall = (x: number, y: number) => {
   const { size, radius, svg } = get(ball);
   const sc = get(scala);
-  get(tableCtx).drawImage(svg, x * sc - radius, y * sc - radius, size, size);
+  get(tableCtx).drawImage(
+    svg,
+    Math.floor(x * sc - radius),
+    Math.floor(y * sc - radius),
+    Math.floor(size),
+    Math.floor(size)
+  );
 };
 
 const renderHomePaddle = (y: number) => {
   const { width, height, x, svg } = get(homePaddle);
   const sc = get(scala);
-  get(tableCtx).drawImage(svg, x, y * sc - height / 2, width, height);
+  get(tableCtx).drawImage(
+    svg,
+    Math.floor(x),
+    Math.floor(y * sc - height / 2),
+    Math.floor(width),
+    Math.floor(height)
+  );
 };
 
 const renderAwayPaddle = (y: number) => {
   const { width, height, x, svg } = get(awayPaddle);
   const sc = get(scala);
-  get(tableCtx).drawImage(svg, x, y * sc - height / 2, width, height);
+  get(tableCtx).drawImage(
+    svg,
+    Math.floor(x),
+    Math.floor(y * sc - height / 2),
+    Math.floor(width),
+    Math.floor(height)
+  );
 };

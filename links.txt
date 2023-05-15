@@ -24,3 +24,6 @@ webtrc:
 
 
 	-https://github.com/sveltejs/kit/discussions/8599
+
+cnavas optimization:
+	-https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas

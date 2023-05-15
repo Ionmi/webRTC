@@ -18,7 +18,7 @@
     table,
   } from "./gemeElements";
   import { get } from "svelte/store";
-  import { handlePaddleMove } from "./connector";
+  import { handlePaddleMove, startGame } from "./controller";
 
   let canvas: HTMLCanvasElement;
   let controller: HTMLCanvasElement;
@@ -33,11 +33,14 @@
   onMount(async () => {
     tableStore.set(canvas);
     controllerStore.set(controller);
-    tableCtx.set(canvas.getContext("2d") as CanvasRenderingContext2D);
+    tableCtx.set(
+      canvas.getContext("2d", { alpha: false }) as CanvasRenderingContext2D
+    );
     controllerCtx.set(controller.getContext("2d") as CanvasRenderingContext2D);
-    touchable.set(true);
+    // touchable.set(true);
     await firstRender(srcs);
-    renderLoop();
+    startGame(-1); //send away player
+    // return renderLoop();
   });
 
   const handleTouchMove = (event: TouchEvent) => {
@@ -60,6 +63,7 @@
   };
 
   const handleMouseMove = (event: MouseEvent) => {
+    if (get(touchable)) return;
     const {
       left,
       right,
