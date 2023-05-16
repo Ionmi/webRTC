@@ -56,24 +56,24 @@ export const render = async ({ ball, homePaddle, awayPaddle }: IPositions) => {
 export const renderController = (pos: number = get(controller).height / 2) => {
   const { width, height } = get(controller);
   const context = get(controllerCtx);
-  context.clearRect(0, 0, width, height);
-
   const gap = get(cornerGap);
   const radius = width / 4;
+  const halfWidth = width / 2;
 
+  context.clearRect(0, 0, width, height);
   context.beginPath();
   context.moveTo(radius, gap);
   context.lineTo(width - radius, gap);
   context.lineTo(width - radius, height - gap);
   context.lineTo(radius, height - gap);
   context.closePath();
-  context.arc(width / 2, gap, radius, 0, 2 * Math.PI);
-  context.arc(width / 2, height - gap, radius, 0, 2 * Math.PI);
+  context.arc(halfWidth, gap, radius, 0, 2 * Math.PI);
+  context.arc(halfWidth, height - gap, radius, 0, 2 * Math.PI);
   context.fillStyle = "#002A3C";
   context.fill();
 
   context.beginPath();
-  context.arc(width / 2, pos, width / 2, 0, 2 * Math.PI);
+  context.arc(halfWidth, pos, halfWidth, 0, 2 * Math.PI);
   context.fillStyle = "#37BDF8";
   context.fill();
 };

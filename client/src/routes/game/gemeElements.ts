@@ -29,6 +29,14 @@ export interface IPositions {
   awayPaddle: number;
 }
 
+export interface INormDimensions {
+  ballRadius: number;
+  paddleWidth: number;
+  paddleHalfHeight: number;
+  paddleX: number;
+  cornerGap: number;
+}
+
 const defPositions = {
   ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
   homePaddle: aspectRatio.height / 2,
@@ -41,6 +49,7 @@ export const tableCtx = writable<CanvasRenderingContext2D>();
 export const controller = writable<HTMLCanvasElement>();
 export const controllerCtx = writable<CanvasRenderingContext2D>();
 export const scala = writable<number>();
+export const normalizedDimensions = writable<INormDimensions>();
 export const cornerGap = writable<number>();
 export const background = writable<HTMLImageElement>();
 export const ball = writable<IBall>();
@@ -51,6 +60,7 @@ export const setDimensions = () => {
   setTable(get(table));
   setBall(get(table).width);
   setPaddles(get(table).width, get(table).height);
+  setNormalizedDimensions();
   setController(get(controller));
 };
 
@@ -89,7 +99,17 @@ const setTable = (table: HTMLCanvasElement) => {
   table.style.height = `${Math.floor(height)}px`;
 
   scala.set(width / aspectRatio.width);
-  cornerGap.set(height / 16 + (width / 100) * 3);
+  cornerGap.set(height / 16 + (width / 100) * 2);
+};
+
+const setNormalizedDimensions = () => {
+  const sc = get(scala);
+  normalizedDimensions.set({
+    ballRadius: get(ball).radius / sc,
+    paddleWidth: get(homePaddle).width / sc,
+    paddleHalfHeight: get(homePaddle).height / 2 / sc,
+    paddleX: get(homePaddle).x / sc,
+  } as INormDimensions);
 };
 
 const setBall = (width: number) => {
