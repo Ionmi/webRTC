@@ -9,6 +9,7 @@ import {
   ball,
   homePaddle,
   normalizedDimensions,
+  defPositions,
 } from "./gemeElements";
 
 import { render } from "./render";
@@ -16,6 +17,7 @@ import { render } from "./render";
 const baseSpeed = 0.06;
 let ballSpeed = baseSpeed;
 
+let moveBall = false;
 let ballDir: [number, number];
 let ballPos: [number, number];
 let hosting: boolean = true;
@@ -35,7 +37,7 @@ export const startGame = (x: -1 | 1) => {
   const { x: xPos, y: yPos } = get(elementPositions).ball;
   ballPos = [xPos, yPos];
   ballDir = [x, getBallDirY()];
-
+  moveBall = true;
   gameLoop();
 };
 
@@ -72,6 +74,20 @@ const paddleCollision = () => {
 };
 
 const goal = () => {
+  const { ballRadius, paddleWidth, paddleX } = get(normalizedDimensions);
+
+  // if (ballPos[0] - ballRadius < paddleX + paddleWidth) return false;
+  if (ballPos[0] + ballRadius < aspectRatio.width) return false;
+
+  const { x, y } = defPositions.ball;
+  ballSpeed = baseSpeed;
+  ballDir = [1, getBallDirY()];
+  ballPos = [x, y];
+
+  moveBall = false;
+  setTimeout(() => {
+    moveBall = true;
+  }, 1000);
   return true;
 };
 
@@ -82,8 +98,7 @@ const calcualteBallPos = () => {
   if (paddleCollision()) return;
   if (goal()) return;
 
-  if (ballPos[0] < ballRadius || ballPos[0] + ballRadius >= width)
-    ballDir[0] *= -1;
+  if (ballPos[0] < ballRadius) ballDir[0] *= -1;
   if (ballPos[1] < ballRadius || ballPos[1] + ballRadius >= height)
     ballDir[1] *= -1;
 
@@ -95,8 +110,10 @@ const gameLoop = () => {
   const positions = get(elementPositions);
 
   setTimeout(() => {
-    calcualteBallPos();
-    updateBallPos(ballPos[0], ballPos[1]);
+    if (moveBall) {
+      calcualteBallPos();
+      updateBallPos(...ballPos);
+    }
 
     //send to peer paddle position
     // if (host) send ball position

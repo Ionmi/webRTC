@@ -37,7 +37,7 @@ export interface INormDimensions {
   cornerGap: number;
 }
 
-const defPositions = {
+export const defPositions = {
   ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
   homePaddle: aspectRatio.height / 2,
   awayPaddle: aspectRatio.height / 2,
