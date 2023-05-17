@@ -13,7 +13,9 @@ import {
 
 import { render } from "./render";
 
-let ballSpeed = 0.05;
+const baseSpeed = 0.06;
+let ballSpeed = baseSpeed;
+
 let ballDir: [number, number];
 let ballPos: [number, number];
 let hosting: boolean = true;
@@ -37,7 +39,7 @@ export const startGame = (x: -1 | 1) => {
   gameLoop();
 };
 
-const calculatePaddleCollision = () => {
+const paddleCollision = () => {
   const { ballRadius, paddleWidth, paddleHalfHeight, paddleX } =
     get(normalizedDimensions);
   const y = get(elementPositions).homePaddle;
@@ -60,6 +62,8 @@ const calculatePaddleCollision = () => {
   const normalizedRelativeIntersectionY = relativeIntersectY / paddleHalfHeight;
   const bounceAngle = normalizedRelativeIntersectionY * 60 * (Math.PI / 180);
 
+  ballSpeed = (Math.abs(normalizedRelativeIntersectionY) + 1) * baseSpeed;
+
   ballDir = [Math.cos(bounceAngle) * -1, Math.sin(bounceAngle)];
   ballPos[0] = paddleX - ballRadius;
   ballPos[0] += ballDir[0] * ballSpeed;
@@ -67,11 +71,16 @@ const calculatePaddleCollision = () => {
   return true;
 };
 
+const goal = () => {
+  return true;
+};
+
 const calcualteBallPos = () => {
   const { width, height } = aspectRatio;
   const { ballRadius } = get(normalizedDimensions);
 
-  if (calculatePaddleCollision()) return;
+  if (paddleCollision()) return;
+  if (goal()) return;
 
   if (ballPos[0] < ballRadius || ballPos[0] + ballRadius >= width)
     ballDir[0] *= -1;
@@ -87,12 +96,12 @@ const gameLoop = () => {
 
   setTimeout(() => {
     calcualteBallPos();
-
     updateBallPos(ballPos[0], ballPos[1]);
+
     //send to peer paddle position
     // if (host) send ball position
     render(positions);
     gameLoop();
-  }, 10);
+  }, 16);
   // }, 16);
 };

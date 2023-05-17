@@ -18,7 +18,7 @@
     table,
   } from "./gemeElements";
   import { get } from "svelte/store";
-  import { handlePaddleMove, startGame } from "./controller";
+  import { handlePaddleMove, startGame } from "./gameLogic";
 
   let canvas: HTMLCanvasElement;
   let controller: HTMLCanvasElement;
