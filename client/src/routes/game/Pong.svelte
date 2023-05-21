@@ -11,6 +11,8 @@
   import {
     table as tableStore,
     controller as controllerStore,
+    confetti as confettiStore,
+    scorer as scorerStore,
     tableCtx,
     type IElementScrcs,
     controllerCtx,
@@ -21,6 +23,8 @@
   import { handlePaddleMove, startGame } from "./gameLogic";
 
   let canvas: HTMLCanvasElement;
+  let confetti: HTMLCanvasElement;
+  let scorer: HTMLCanvasElement;
   let controller: HTMLCanvasElement;
 
   const srcs: IElementScrcs = {
@@ -32,6 +36,8 @@
 
   onMount(async () => {
     tableStore.set(canvas);
+    confettiStore.set(confetti);
+    scorerStore.set(scorer);
     controllerStore.set(controller);
     tableCtx.set(
       canvas.getContext("2d", { alpha: false }) as CanvasRenderingContext2D
@@ -88,11 +94,16 @@
 </script>
 
 <div class:rotate={!$landscape} class="flex items-center gap-8">
-  <canvas
-    bind:this={canvas}
-    on:mousemove={handleMouseMove}
-    class="cursor-none"
-  />
+  <div id="canvas-parent" class="relative">
+    <!-- <canvas class="bg-black opacity-30 absolute z-10 w-full h-full"></canvas> -->
+    <canvas
+      bind:this={scorer}
+      class="absolute z-20 cursor-none"
+      on:mousemove={handleMouseMove}
+    />
+    <canvas bind:this={confetti} class="absolute z-10 " />
+    <canvas bind:this={canvas} class=" z-0" />
+  </div>
   <canvas
     bind:this={controller}
     on:touchmove|preventDefault={handleTouchMove}
@@ -105,4 +116,8 @@
   .rotate {
     transform: rotate(90deg);
   }
+  /* .reverse-rotate {
+    transform-origin: top left;
+    transform: rotate(-90deg);
+  } */
 </style>

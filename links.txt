@@ -4,7 +4,7 @@ pong:
 	-https://svelte.dev/repl/79f4f3e0296a403ea988f74d332a7a4a?version=3.12.1
 	-https://codepen.io/gdube/pen/JybxxZ
 	-https://gamedev.stackexchange.com/questions/4253/in-pong-how-do-you-calculate-the-balls-direction-when-it-bounces-off-the-paddl
-	
+	-https://particles.js.org/
 
 webtrc:
 	-https://dev.to/bornfightcompany/using-webtrc-for-a-browser-multiplayer-game-in-theory-59dk

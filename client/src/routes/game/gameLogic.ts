@@ -13,8 +13,9 @@ import {
 } from "./gemeElements";
 
 import { render } from "./render";
+import { launchConfetti } from "./confetti";
 
-const baseSpeed = 0.06;
+const baseSpeed = 0.065;
 let ballSpeed = baseSpeed;
 
 let moveBall = false;
@@ -85,6 +86,9 @@ const goal = () => {
   ballPos = [x, y];
 
   moveBall = false;
+
+  launchConfetti();
+
   setTimeout(() => {
     moveBall = true;
   }, 1000);
