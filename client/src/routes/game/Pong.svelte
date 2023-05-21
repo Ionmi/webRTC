@@ -94,14 +94,14 @@
 </script>
 
 <div class:rotate={!$landscape} class="flex items-center gap-8">
-  <div id="canvas-parent" class="relative">
+  <div class="relative">
     <!-- <canvas class="bg-black opacity-30 absolute z-10 w-full h-full"></canvas> -->
     <canvas
       bind:this={scorer}
       class="absolute z-20 cursor-none"
       on:mousemove={handleMouseMove}
     />
-    <canvas bind:this={confetti} class="absolute z-10 " />
+    <canvas bind:this={confetti} class="absolute z-10" />
     <canvas bind:this={canvas} class=" z-0" />
   </div>
   <canvas

@@ -107,7 +107,7 @@ const setTable = (table: HTMLCanvasElement, scorer: HTMLCanvasElement) => {
 };
 
 const setConfetti = (confetti2: HTMLCanvasElement) => {
-  const { width, height, left } = get(table);
+  const { width, height } = get(table);
   if (get(landscape) === false) {
     confetti2.width = height;
     confetti2.height = width;
@@ -126,21 +126,22 @@ const setConfetti = (confetti2: HTMLCanvasElement) => {
     confetti2.height = height;
     confetti2.style.width = `${Math.floor(width)}px`;
     confetti2.style.height = `${Math.floor(height)}px`;
+    setConfettiLib();
+    return;
   }
-  if (prevLandscape === false) {
-    const newConfetti = document.createElement("canvas");
-    newConfetti.width = width;
-    newConfetti.height = height;
-    newConfetti.style.width = `${Math.floor(width)}px`;
-    newConfetti.style.height = `${Math.floor(height)}px`;
-    newConfetti.classList.add("absolute", "z-10");
-    confetti.set(newConfetti);
+  const newConfetti = document.createElement("canvas");
+  newConfetti.width = width;
+  newConfetti.height = height;
+  newConfetti.style.width = `${Math.floor(width)}px`;
+  newConfetti.style.height = `${Math.floor(height)}px`;
+  newConfetti.classList.add("absolute", "z-10");
+  confetti.set(newConfetti);
 
-    const parent = document.querySelector("#canvas-parent");
-    parent?.removeChild(confetti2);
+  const parent = confetti2.parentElement;
+  parent?.removeChild(confetti2);
 
-    get(table).insertAdjacentElement("beforebegin", newConfetti);
-  }
+  get(table).insertAdjacentElement("beforebegin", newConfetti);
+
   prevLandscape = true;
   setConfettiLib();
 };
