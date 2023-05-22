@@ -1,6 +1,7 @@
 import { get, writable } from "svelte/store";
 import { landscape } from "./render";
-import { setConfettiLib } from "./confetti";
+import { setConfetti } from "./confetti";
+import {  scorer } from "./scorer";
 
 export const aspectRatio = { width: 7, height: 5, ratio: 1.4 };
 
@@ -46,8 +47,6 @@ export const defPositions = {
 export const positions = writable<IPositions>(defPositions);
 
 export const table = writable<HTMLCanvasElement>();
-export const confetti = writable<HTMLCanvasElement>();
-export const scorer = writable<HTMLCanvasElement>();
 export const tableCtx = writable<CanvasRenderingContext2D>();
 export const controller = writable<HTMLCanvasElement>();
 export const controllerCtx = writable<CanvasRenderingContext2D>();
@@ -58,11 +57,10 @@ export const background = writable<HTMLImageElement>();
 export const ball = writable<IBall>();
 export const homePaddle = writable<IPadle>();
 export const awayPaddle = writable<IPadle>();
-let prevLandscape = true;
 
 export const setDimensions = () => {
   setTable(get(table), get(scorer));
-  setConfetti(get(confetti));
+  setConfetti();
   setBall(get(table).width);
   setPaddles(get(table).width, get(table).height);
   setNormalizedDimensions();
@@ -104,46 +102,6 @@ const setTable = (table: HTMLCanvasElement, scorer: HTMLCanvasElement) => {
 
   scala.set(width / aspectRatio.width);
   cornerGap.set(height / 16 + (width / 100) * 2);
-};
-
-const setConfetti = (confetti2: HTMLCanvasElement) => {
-  const { width, height } = get(table);
-  if (get(landscape) === false) {
-    confetti2.width = height;
-    confetti2.height = width;
-    confetti2.style.width = `${Math.floor(height)}px`;
-    confetti2.style.height = `${Math.floor(width)}px`;
-
-    confetti2.style.transformOrigin = "top left";
-    confetti2.style.transform = " rotate(-90deg)";
-    confetti2.style.bottom = width * -1 + "px";
-    prevLandscape = false;
-    setConfettiLib();
-    return;
-  }
-  if (prevLandscape) {
-    confetti2.width = width;
-    confetti2.height = height;
-    confetti2.style.width = `${Math.floor(width)}px`;
-    confetti2.style.height = `${Math.floor(height)}px`;
-    setConfettiLib();
-    return;
-  }
-  const newConfetti = document.createElement("canvas");
-  newConfetti.width = width;
-  newConfetti.height = height;
-  newConfetti.style.width = `${Math.floor(width)}px`;
-  newConfetti.style.height = `${Math.floor(height)}px`;
-  newConfetti.classList.add("absolute", "z-10");
-  confetti.set(newConfetti);
-
-  const parent = confetti2.parentElement;
-  parent?.removeChild(confetti2);
-
-  get(table).insertAdjacentElement("beforebegin", newConfetti);
-
-  prevLandscape = true;
-  setConfettiLib();
 };
 
 const setNormalizedDimensions = () => {

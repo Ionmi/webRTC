@@ -16,6 +16,7 @@ import {
   type IPositions,
   positions,
 } from "./gemeElements";
+import { renderScore, scorer } from "./scorer";
 
 export const touchable = writable<boolean>(false);
 export const landscape = writable<boolean>(true);
@@ -24,6 +25,7 @@ let frame: number;
 
 export const renderResize = () => {
   setDimensions();
+  renderScore(get(scorer));
   if (!get(touchable)) get(controller).style.display = "none";
   else renderController();
 };
@@ -32,6 +34,7 @@ export const firstRender = async (srcs: IElementScrcs) => {
   await setSvgs(srcs);
   get(tableCtx).imageSmoothingQuality = "low";
   setDimensions();
+  renderScore(get(scorer));
   if (!get(touchable)) get(controller).style.display = "none";
   else renderController();
 };

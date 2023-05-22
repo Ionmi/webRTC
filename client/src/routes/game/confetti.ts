@@ -1,8 +1,10 @@
-import { get } from "svelte/store";
-import { confetti as confettiStore, table as tableStore } from "./gemeElements";
+import { get, writable } from "svelte/store";
+import { table } from "./gemeElements";
 
 import * as confettiLib from "canvas-confetti";
 import { landscape } from "./render";
+
+export const confetti = writable<HTMLCanvasElement>();
 
 let golden: boolean;
 
@@ -21,16 +23,16 @@ const defaults: ParticleOptions = {
   shapes: ["square"],
 };
 
-let launch: any;
+let launch: Function;
 export const setConfettiLib = () => {
-  launch = confettiLib.create(get(confettiStore));
+  launch = confettiLib.create(get(confetti));
   //coger celebracion de user
   // golden = true;
-  // defaults.colors = ["#FFD700", "#c0c0c0F"];
+  defaults.colors = ["#FFD700", "#c0c0c0F"];
 };
 
 const scalar = () => {
-  const { width, height } = get(confettiStore);
+  const { width, height } = get(confetti);
 
   if (width < 500 || height < 500) {
     return 0.6;
@@ -131,4 +133,47 @@ const setPride = (homeSide: boolean, landscape: boolean) => {
 export const launchConfetti = () => {
   fireworks();
   // pride();
+};
+
+let prevLandscape = true;
+
+export const setConfetti = () => {
+  const currentConfetti = get(confetti);
+  const { width, height } = get(table);
+  if (get(landscape) === false) {
+    currentConfetti.width = height;
+    currentConfetti.height = width;
+    currentConfetti.style.width = `${Math.floor(height)}px`;
+    currentConfetti.style.height = `${Math.floor(width)}px`;
+
+    currentConfetti.style.transformOrigin = "top left";
+    currentConfetti.style.transform = " rotate(-90deg)";
+    currentConfetti.style.bottom = width * -1 + "px";
+    prevLandscape = false;
+    setConfettiLib();
+    return;
+  }
+  if (prevLandscape) {
+    currentConfetti.width = width;
+    currentConfetti.height = height;
+    currentConfetti.style.width = `${Math.floor(width)}px`;
+    currentConfetti.style.height = `${Math.floor(height)}px`;
+    setConfettiLib();
+    return;
+  }
+  const newConfetti = document.createElement("canvas");
+  newConfetti.width = width;
+  newConfetti.height = height;
+  newConfetti.style.width = `${Math.floor(width)}px`;
+  newConfetti.style.height = `${Math.floor(height)}px`;
+  newConfetti.classList.add("absolute", "z-10");
+  confetti.set(newConfetti);
+
+  const parent = currentConfetti.parentElement;
+  parent?.removeChild(currentConfetti);
+
+  get(table).insertAdjacentElement("beforebegin", newConfetti);
+
+  prevLandscape = true;
+  setConfettiLib();
 };

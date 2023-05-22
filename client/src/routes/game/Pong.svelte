@@ -11,14 +11,14 @@
   import {
     table as tableStore,
     controller as controllerStore,
-    confetti as confettiStore,
-    scorer as scorerStore,
     tableCtx,
     type IElementScrcs,
     controllerCtx,
     cornerGap,
     table,
   } from "./gemeElements";
+  import { confetti as confettiStore } from "./confetti";
+  import { scorerCtx, scorer as scorerStore } from "./scorer";
   import { get } from "svelte/store";
   import { handlePaddleMove, startGame } from "./gameLogic";
 
@@ -43,7 +43,8 @@
       canvas.getContext("2d", { alpha: false }) as CanvasRenderingContext2D
     );
     controllerCtx.set(controller.getContext("2d") as CanvasRenderingContext2D);
-    touchable.set(true);
+    scorerCtx.set(scorer.getContext("2d") as CanvasRenderingContext2D);
+    // touchable.set(true);
     await firstRender(srcs);
     startGame(-1); //send away player
     // return renderLoop();

@@ -14,6 +14,7 @@ import {
 
 import { render } from "./render";
 import { launchConfetti } from "./confetti";
+import { awayGoal } from "./scorer";
 
 const baseSpeed = 0.065;
 let ballSpeed = baseSpeed;
@@ -46,7 +47,6 @@ const paddleCollision = () => {
   const { ballRadius, paddleWidth, paddleHalfHeight, paddleX } =
     get(normalizedDimensions);
   const y = get(elementPositions).homePaddle;
-  const { height } = get(homePaddle);
 
   if (
     ballPos[0] + ballRadius < paddleX ||
@@ -88,6 +88,7 @@ const goal = () => {
   moveBall = false;
 
   launchConfetti();
+  awayGoal();
 
   setTimeout(() => {
     moveBall = true;
