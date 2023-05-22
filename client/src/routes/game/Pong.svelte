@@ -43,7 +43,7 @@
       canvas.getContext("2d", { alpha: false }) as CanvasRenderingContext2D
     );
     controllerCtx.set(controller.getContext("2d") as CanvasRenderingContext2D);
-    // touchable.set(true);
+    touchable.set(true);
     await firstRender(srcs);
     startGame(-1); //send away player
     // return renderLoop();

@@ -91,7 +91,7 @@ const goal = () => {
 
   setTimeout(() => {
     moveBall = true;
-  }, 1000);
+  }, 1500);
   return true;
 };
 

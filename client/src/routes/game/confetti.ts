@@ -3,7 +3,6 @@ import { confetti as confettiStore, table as tableStore } from "./gemeElements";
 
 import * as confettiLib from "canvas-confetti";
 import { landscape } from "./render";
-const duration = 1500;
 
 let golden: boolean;
 
@@ -43,13 +42,13 @@ const scalar = () => {
 };
 
 const fireworks = () => {
-  const animationEnd = Date.now() + duration;
+  const animationEnd = Date.now() + 1500;
   const interval: any = setInterval(() => {
     const timeLeft = animationEnd - Date.now();
     if (timeLeft <= 0) {
       return clearInterval(interval);
     }
-    const particleCount = 50 * (timeLeft / duration);
+    const particleCount = 50 * (timeLeft / 1500);
 
     launch({
       ...defaults,
@@ -69,7 +68,7 @@ const fireworks = () => {
 };
 
 const pride = (homeSide: boolean = true) => {
-  const animationEnd = Date.now() + duration;
+  const animationEnd = Date.now() + 1000;
   const colors = golden ? ["#FFD700", "#c0c0c0F"] : ["#ff0000", "#ffffff"];
 
   const { angles, origins } = setPride(homeSide, get(landscape));
@@ -130,6 +129,6 @@ const setPride = (homeSide: boolean, landscape: boolean) => {
 };
 
 export const launchConfetti = () => {
-  // fireworks();
-  pride();
+  fireworks();
+  // pride();
 };
