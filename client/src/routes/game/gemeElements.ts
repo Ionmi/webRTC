@@ -1,5 +1,7 @@
 import { get, writable } from "svelte/store";
 import { landscape } from "./render";
+import { setConfetti } from "./confetti";
+import {  scorer } from "./scorer";
 
 export const aspectRatio = { width: 7, height: 5, ratio: 1.4 };
 
@@ -29,7 +31,15 @@ export interface IPositions {
   awayPaddle: number;
 }
 
-const defPositions = {
+export interface INormDimensions {
+  ballRadius: number;
+  paddleWidth: number;
+  paddleHalfHeight: number;
+  paddleX: number;
+  cornerGap: number;
+}
+
+export const defPositions = {
   ball: { x: aspectRatio.width / 2, y: aspectRatio.height / 2 },
   homePaddle: aspectRatio.height / 2,
   awayPaddle: aspectRatio.height / 2,
@@ -41,6 +51,7 @@ export const tableCtx = writable<CanvasRenderingContext2D>();
 export const controller = writable<HTMLCanvasElement>();
 export const controllerCtx = writable<CanvasRenderingContext2D>();
 export const scala = writable<number>();
+export const normalizedDimensions = writable<INormDimensions>();
 export const cornerGap = writable<number>();
 export const background = writable<HTMLImageElement>();
 export const ball = writable<IBall>();
@@ -48,9 +59,11 @@ export const homePaddle = writable<IPadle>();
 export const awayPaddle = writable<IPadle>();
 
 export const setDimensions = () => {
-  setTable(get(table));
+  setTable(get(table), get(scorer));
+  setConfetti();
   setBall(get(table).width);
   setPaddles(get(table).width, get(table).height);
+  setNormalizedDimensions();
   setController(get(controller));
 };
 
@@ -62,9 +75,10 @@ const setController = (controller: HTMLCanvasElement) => {
   controller.width = width;
 };
 
-const setTable = (table: HTMLCanvasElement) => {
+const setTable = (table: HTMLCanvasElement, scorer: HTMLCanvasElement) => {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
+
   let maxWidth: number;
   let maxHeight: number;
 
@@ -81,17 +95,48 @@ const setTable = (table: HTMLCanvasElement) => {
   const width = Math.min(maxWidth, maxHeight * aspectRatio.ratio);
   const height = width / aspectRatio.ratio;
 
-  table.width = width;
-  table.height = height;
+  table.width = scorer.width = width;
+  table.height = scorer.height = height;
+  table.style.width = scorer.style.width = `${Math.floor(width)}px`;
+  table.style.height = scorer.style.height = `${Math.floor(height)}px`;
 
   scala.set(width / aspectRatio.width);
-  cornerGap.set(height / 16 + (width / 100) * 3);
+  cornerGap.set(height / 16 + (width / 100) * 2);
+};
+
+const setNormalizedDimensions = () => {
+  const sc = get(scala);
+  normalizedDimensions.set({
+    ballRadius: get(ball).radius / sc,
+    paddleWidth: get(homePaddle).width / sc,
+    paddleHalfHeight: get(homePaddle).height / 2 / sc,
+    paddleX: get(homePaddle).x / sc,
+  } as INormDimensions);
 };
 
 const setBall = (width: number) => {
   ball.update((ball) => {
     return { ...ball, size: width / 50, radius: width / 100 };
   });
+};
+
+export const getBallDirY = () => {
+  const random = Math.floor(Math.random() * 12);
+  const y =
+    random === 0
+      ? -0.63
+      : Math.round((0.103 * random - 0.63 + Number.EPSILON) * 100) / 100;
+  return y;
+};
+
+export const updateBallPos = (x: number, y: number) => {
+  positions.update((prev) => ({ ...prev, ball: { x, y } }));
+};
+
+export const updatePaddlePos = (y: number, isHome: boolean = true) => {
+  positions.update((prev) =>
+    isHome ? { ...prev, homePaddle: y } : { ...prev, homePaddle: y }
+  );
 };
 
 const setPaddles = (width: number, height: number) => {

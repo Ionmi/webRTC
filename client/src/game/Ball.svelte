@@ -25,7 +25,7 @@
     if ($ballPos === null) $ballPos = [width / 2, height / 2];
     if ($ballPos[0] < 0 || $ballPos[0] + ballSize >= width) $ballDir[0] *= -1;
     if ($ballPos[1] < 0 || $ballPos[1] + ballSize >= height) $ballDir[1] *= -1;
-    
+
     $ballPos[0] = $ballPos[0] + $ballDir[0] * $ballSpeed;
     $ballPos[1] = $ballPos[1] + $ballDir[1] * $ballSpeed;
 

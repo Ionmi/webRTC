@@ -17,10 +17,14 @@
     cornerGap,
     table,
   } from "./gemeElements";
+  import { confetti as confettiStore } from "./confetti";
+  import { scorerCtx, scorer as scorerStore } from "./scorer";
   import { get } from "svelte/store";
-  import { handlePaddleMove } from "./connector";
+  import { handlePaddleMove, startGame } from "./gameLogic";
 
   let canvas: HTMLCanvasElement;
+  let confetti: HTMLCanvasElement;
+  let scorer: HTMLCanvasElement;
   let controller: HTMLCanvasElement;
 
   const srcs: IElementScrcs = {
@@ -32,12 +36,18 @@
 
   onMount(async () => {
     tableStore.set(canvas);
+    confettiStore.set(confetti);
+    scorerStore.set(scorer);
     controllerStore.set(controller);
-    tableCtx.set(canvas.getContext("2d") as CanvasRenderingContext2D);
+    tableCtx.set(
+      canvas.getContext("2d", { alpha: false }) as CanvasRenderingContext2D
+    );
     controllerCtx.set(controller.getContext("2d") as CanvasRenderingContext2D);
-    touchable.set(true);
+    scorerCtx.set(scorer.getContext("2d") as CanvasRenderingContext2D);
+    // touchable.set(true);
     await firstRender(srcs);
-    renderLoop();
+    startGame(-1); //send away player
+    // return renderLoop();
   });
 
   const handleTouchMove = (event: TouchEvent) => {
@@ -60,6 +70,7 @@
   };
 
   const handleMouseMove = (event: MouseEvent) => {
+    if (get(touchable)) return;
     const {
       left,
       right,
@@ -84,11 +95,16 @@
 </script>
 
 <div class:rotate={!$landscape} class="flex items-center gap-8">
-  <canvas
-    bind:this={canvas}
-    on:mousemove={handleMouseMove}
-    class="cursor-none"
-  />
+  <div class="relative">
+    <!-- <canvas class="bg-black opacity-30 absolute z-10 w-full h-full"></canvas> -->
+    <canvas
+      bind:this={scorer}
+      class="absolute z-20 cursor-none"
+      on:mousemove={handleMouseMove}
+    />
+    <canvas bind:this={confetti} class="absolute z-10" />
+    <canvas bind:this={canvas} class=" z-0" />
+  </div>
   <canvas
     bind:this={controller}
     on:touchmove|preventDefault={handleTouchMove}
@@ -101,4 +117,8 @@
   .rotate {
     transform: rotate(90deg);
   }
+  /* .reverse-rotate {
+    transform-origin: top left;
+    transform: rotate(-90deg);
+  } */
 </style>
